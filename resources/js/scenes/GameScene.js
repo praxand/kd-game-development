@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import gameConstants from "../config/gameConstants";
 import physicsConstants from "../config/physicsConstants";
-import LivesDisplay from "../ui/LivesDisplay";
-import ScoreDisplay from "../ui/ScoreDisplay";
+import GameUI from "../ui/GameUI";
+import GameOverUI from "../ui/GameOverUI";
 
 export default class GameScene extends Phaser.Scene {
     // ==============================================
@@ -19,7 +19,6 @@ export default class GameScene extends Phaser.Scene {
     // ==============================================
 
     create() {
-        this.cleanupPreviousGame();
         this.initGameComponents();
         this.stickBallToPaddle();
     }
@@ -42,16 +41,17 @@ export default class GameScene extends Phaser.Scene {
         this.lava = null;
         this.cursors = null;
         this.spaceKey = null;
-        this.scoreDisplay = null;
-        this.livesDisplay = null;
         this.ballLaunched = false;
         this.powerUpActive = false;
         this.multiBallTimeout = null;
+        this.gameUI = null;
+        this.gameOverUI = null;
     }
 
     initGameComponents() {
         this.createGameObjects();
-        this.createUI();
+        this.gameUI = new GameUI(this);
+        this.gameOverUI = new GameOverUI(this);
         this.setupPhysics();
         this.setupInput();
     }
@@ -62,26 +62,6 @@ export default class GameScene extends Phaser.Scene {
         this.paddle = this.createPaddle();
         this.bricks = this.createBricks();
         this.createLava();
-    }
-
-    createUI() {
-        this.cleanupUI();
-
-        this.scoreDisplay = new ScoreDisplay(
-            this,
-            gameConstants.ui.scorePosition.x,
-            gameConstants.ui.scorePosition.y,
-            gameConstants.startingScore,
-            gameConstants.ui.textStyle
-        );
-
-        this.livesDisplay = new LivesDisplay(
-            this,
-            gameConstants.ui.livesPosition.x,
-            gameConstants.ui.livesPosition.y,
-            gameConstants.startingLives,
-            gameConstants.ui.textStyle
-        );
     }
 
     setupPhysics() {
@@ -222,7 +202,7 @@ export default class GameScene extends Phaser.Scene {
 
     handleBrickCollision(ball, brick) {
         brick.destroy();
-        this.scoreDisplay.add(gameConstants.baseScore);
+        this.gameUI.scoreDisplay.add(gameConstants.baseScore);
 
         if (brick.isPowerUp) {
             this.activateMultiBall();
@@ -242,8 +222,8 @@ export default class GameScene extends Phaser.Scene {
         }
 
         if (this.balls.length === 0) {
-            const remainingLives = this.livesDisplay.decrement();
-            this.scoreDisplay.subtract(gameConstants.lavaPenalty);
+            const remainingLives = this.gameUI.livesDisplay.decrement();
+            this.gameUI.scoreDisplay.subtract(gameConstants.lavaPenalty);
 
             remainingLives <= 0 ? this.gameOver() : this.resetAfterLava();
         }
@@ -369,86 +349,17 @@ export default class GameScene extends Phaser.Scene {
     // Cleanup and Game Flow Methods
     // ==============================================
 
-    cleanupPreviousGame() {
-        try {
-            this.balls.forEach((ball) => ball.destroy());
-            this.balls = [];
-
-            [
-                this.paddle,
-                this.bricks,
-                this.lava,
-                this.scoreDisplay,
-                this.livesDisplay,
-            ].forEach((obj) => obj?.destroy());
-
-            this.cleanupUI();
-            this.physics.world.colliders.destroy();
-        } catch (error) {
-            console.warn("Cleanup error:", error);
-        }
-    }
-
-    cleanupUI() {
-        [this.scoreDisplay, this.livesDisplay].forEach((display) => {
-            display?.destroy();
-        });
-
-        this.scoreDisplay = null;
-        this.livesDisplay = null;
-    }
-
-    gameOver() {
+    async gameOver() {
         this.physics.pause();
-        [
-            ...this.balls,
-            this.paddle,
-            this.bricks,
-            this.scoreDisplay,
-            this.livesDisplay,
-        ].forEach((obj) => obj?.setVisible(false));
 
-        const centerX = this.scale.width / 2;
-        const centerY = this.scale.height / 2;
+        [...this.balls, this.paddle, this.bricks].forEach((obj) =>
+            obj?.setVisible(false)
+        );
 
-        this.add
-            .text(
-                centerX,
-                centerY - 50,
-                `GAME OVER\nScore: ${this.scoreDisplay.getScore()}`,
-                gameConstants.ui.gameOverStyle
-            )
-            .setOrigin(0.5);
+        this.gameUI.setVisible(false);
 
-        const restartButton = this.add
-            .text(
-                centerX,
-                centerY + 50,
-                "Click to Restart",
-                gameConstants.ui.restartStyle
-            )
-            .setOrigin(0.5)
-            .setInteractive();
+        await this.gameOverUI.show(this.gameUI.getScore());
 
-        restartButton.on("pointerdown", () => this.cleanupAndRestart());
-        this.input.keyboard.on("keydown-R", () => this.cleanupAndRestart());
-    }
-
-    cleanupAndRestart() {
-        this.children.each((child) => {
-            if (
-                child.text?.includes("GAME OVER") ||
-                child.text === "Click to Restart"
-            ) {
-                child.destroy();
-            }
-        });
-        this.restartGame();
-    }
-
-    restartGame() {
-        this.cleanupPreviousGame();
-        this.resetGameState();
         this.scene.restart();
     }
 }
