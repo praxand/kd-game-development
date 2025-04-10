@@ -19,7 +19,7 @@ const gameConstants = {
         height: 20,
         color: 0xffffff,
         count: {
-            row: 4,
+            row: 2,
             column: 12,
         },
         offset: {
