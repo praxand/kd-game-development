@@ -46,6 +46,12 @@ const gameConstants = {
             fontSize: "32px",
             color: "#ffff00",
         },
+        pauseMenuStyle: {
+            fontFamily: 'Arial',
+            fontSize: '32px',
+            color: '#ffffff',
+            align: 'center', 
+        }
     },
     world: {
         lavaHeight: 10,

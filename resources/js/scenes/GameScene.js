@@ -24,6 +24,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update() {
+        if (this.isPaused) return;
+
         this.handlePaddleMovement();
         this.handleBallLaunchInput();
         this.handleStickBallToPaddle();
@@ -41,11 +43,13 @@ export default class GameScene extends Phaser.Scene {
         this.lava = null;
         this.cursors = null;
         this.spaceKey = null;
+        this.escKey = null;
         this.ballLaunched = false;
         this.powerUpActive = false;
         this.multiBallTimeout = null;
         this.gameUI = null;
         this.gameOverUI = null;
+        this.isPaused = false;
     }
 
     initGameComponents() {
@@ -72,13 +76,46 @@ export default class GameScene extends Phaser.Scene {
 
     setupInput() {
         this.cursors = this.input.keyboard.createCursorKeys();
+
         this.spaceKey = this.input.keyboard.addKey(
             Phaser.Input.Keyboard.KeyCodes.SPACE
+        );
+        this.escKey = this.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.ESC
         );
 
         this.input.keyboard.on("keyup", () =>
             this.paddle?.body?.setVelocityX(0)
         );
+
+        this.escKey.on("down", () => {
+            this.togglePause();
+        });
+    }
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
+        
+        if (this.isPaused) {
+            this.physics.pause();
+            this.gameUI.showPauseMenu();
+        } else {
+            this.physics.resume();
+            this.gameUI.hidePauseMenu();
+        }
+    }
+
+    pauseGame() {
+        this.isPaused = true;
+        this.physics.pause();
+        this.gameUI.showPauseMenu();
+    }
+
+    resumeGame() {
+        this.isPaused = false;
+        this.physics.resume();
+        this.gameUI.hidePauseMenu();
+        this.pauseOverlay?.destroy();
     }
 
     // ==============================================
@@ -234,7 +271,7 @@ export default class GameScene extends Phaser.Scene {
     // ==============================================
 
     stickBallToPaddle() {
-        if (this.balls.length === 0 || !this.paddle) return;
+        if (this.balls.length === 0 || !this.paddle || !this.balls[0].body) return;
 
         const mainBall = this.balls[0];
 
@@ -351,8 +388,12 @@ export default class GameScene extends Phaser.Scene {
 
     async gameOver() {
         this.physics.pause();
+        this.input.keyboard.enabled = false;
 
-        [...this.balls, this.paddle, this.bricks].forEach((obj) =>
+        this.balls.forEach((ball) => ball.destroy());
+        this.balls = [];
+
+        [this.paddle, this.bricks].forEach((obj) =>
             obj?.setVisible(false)
         );
 
@@ -360,6 +401,7 @@ export default class GameScene extends Phaser.Scene {
 
         await this.gameOverUI.show(this.gameUI.getScore());
 
+        this.input.keyboard.enabled = true;
         this.scene.restart();
     }
 }
