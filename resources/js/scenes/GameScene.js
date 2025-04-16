@@ -28,8 +28,7 @@ export default class GameScene extends Phaser.Scene {
             win: this.sound.add("win"),
         };
 
-        // Set global volume (0 to 1)
-        this.sound.volume = 0.5;
+        this.sound.volume = gameConstants.volume;
 
         this.initGameComponents();
         this.stickBallToPaddle();
@@ -44,17 +43,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        const folder = "assets/sounds/";
+        const sounds = {
+            win: "270334__littlerobotsoundfactory__jingle_lose_01.wav",
+            lose: "270319__littlerobotsoundfactory__jingle_win_01.wav",
+        };
 
-        this.load.audio(
-            "lose",
-            `${folder}270334__littlerobotsoundfactory__jingle_lose_01.wav`
-        );
-
-        this.load.audio(
-            "win",
-            `${folder}270319__littlerobotsoundfactory__jingle_win_01.wav`
-        );
+        for (const [key, value] of Object.entries(sounds)) {
+            this.load.audio(key, `assets/sounds/${value}`);
+        }
     }
 
     // ==============================================

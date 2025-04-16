@@ -7,6 +7,7 @@ const colors = {
 };
 
 const gameConstants = {
+    volume: 0.5,
     startingScore: 0,
     baseScore: 100,
     lavaPenalty: 500,
