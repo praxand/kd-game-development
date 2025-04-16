@@ -40,11 +40,13 @@ export default class GameUI {
     }
 
     showPauseMenu() {
+        const { width, height } = this.scene.scale;
+
         return (this.pauseText = this.scene.add
             .text(
-                this.scene.scale.width / 2,
-                this.scene.scale.height / 2,
-                "PAUSED\n\nPress ESC to resume",
+                width / 2,
+                height / 2,
+                "PAUSED\nPress ESC to resume",
                 gameConstants.ui.pauseMenuStyle
             )
             .setOrigin(0.5));
