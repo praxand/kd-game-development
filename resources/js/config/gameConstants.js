@@ -4,6 +4,7 @@ const colors = {
     green: 0x00ff00,
     red: 0xff0000,
     yellow: 0xffff00,
+    gold: 0xffd700
 };
 
 const gameConstants = {
@@ -19,6 +20,11 @@ const gameConstants = {
         textStyle: {
             fontSize: "32px",
             fill: `#${colors.white.toString(16)}`,
+        },
+        titleStyle: {
+                fontFamily: '"Arial Black"',
+                fontSize: "72px",
+                color: `#${colors.yellow.toString(16)}`,
         },
         gameOverStyle: {
             fontFamily: "Arial",

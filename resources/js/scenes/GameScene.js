@@ -11,51 +11,38 @@ export default class GameScene extends Phaser.Scene {
 
     constructor() {
         super("game-scene");
-        this.resetGameState();
-        this.powerUpCounts = {
-            multiBall: 0,
-            extraLife: 0,
-        };
+        this.initState();
     }
 
     // ==============================================
     // Phaser Lifecycle Methods
     // ==============================================
 
+    preload() {
+        this.loadAudioAssets();
+    }
+
     create() {
-        this.sounds = {
-            lose: this.sound.add("lose"),
-            win: this.sound.add("win"),
-        };
-
-        this.sound.volume = gameConstants.volume;
-
+        this.initAudio();
+        this.createTitleText();
         this.initGameComponents();
         this.stickBallToPaddle();
     }
 
     update() {
         if (this.isPaused) return;
-
-        this.handlePaddleMovement();
-        this.handleBallLaunchInput();
-        this.handleStickBallToPaddle();
-    }
-
-    preload() {
-        const sounds = {
-            win: "270334__littlerobotsoundfactory__jingle_lose_01.wav",
-            lose: "270319__littlerobotsoundfactory__jingle_win_01.wav",
-        };
-
-        for (const [key, value] of Object.entries(sounds)) {
-            this.load.audio(key, `assets/sounds/${value}`);
-        }
+        this.updateGame();
     }
 
     // ==============================================
     // Initialization Methods
     // ==============================================
+
+    initState() {
+        this.resetGameState();
+        this.powerUpCounts = { multiBall: 0, extraLife: 0 };
+        this.titleText = null;
+    }
 
     resetGameState() {
         this.ball = null;
@@ -76,10 +63,56 @@ export default class GameScene extends Phaser.Scene {
 
     initGameComponents() {
         this.createGameObjects();
-        this.gameUI = new GameUI(this);
-        this.gameOverUI = new GameOverUI(this);
+        this.initUI();
         this.setupPhysics();
         this.setupInput();
+    }
+
+    initUI() {
+        this.gameUI = new GameUI(this);
+        this.gameOverUI = new GameOverUI(this);
+    }
+
+    // ==============================================
+    // Audio Methods
+    // ==============================================
+
+    loadAudioAssets() {
+        const sounds = {
+            win: "270319__littlerobotsoundfactory__jingle_win_01.wav",
+            lose: "270334__littlerobotsoundfactory__jingle_lose_01.wav",
+        };
+
+        Object.entries(sounds).forEach(([key, value]) => {
+            this.load.audio(key, `assets/sounds/${value}`);
+        });
+    }
+
+    initAudio() {
+        this.sounds = {
+            win: this.sound.add("win"),
+            lose: this.sound.add("lose"),
+        };
+
+        this.sound.volume = gameConstants.volume;
+    }
+
+    // ==============================================
+    // Game Object Creation
+    // ==============================================
+
+    createTitleText() {
+        const { width, height } = this.scale;
+
+        this.titleText = this.add
+            .text(
+                width / 2,
+                height / 2 - 50,
+                "Best Education",
+                gameConstants.ui.titleStyle
+            )
+            .setOrigin(0.5)
+            .setDepth(1);
     }
 
     createGameObjects() {
@@ -89,60 +122,6 @@ export default class GameScene extends Phaser.Scene {
         this.bricks = this.createBricks();
         this.createLava();
     }
-
-    setupPhysics() {
-        this.physics.world.setBoundsCollision(true, true, true, false);
-        this.physics.world.colliders.destroy();
-        this.balls.forEach((ball) => this.setupBallCollisions(ball));
-    }
-
-    setupInput() {
-        this.cursors = this.input.keyboard.createCursorKeys();
-
-        this.spaceKey = this.input.keyboard.addKey(
-            Phaser.Input.Keyboard.KeyCodes.SPACE
-        );
-        this.escKey = this.input.keyboard.addKey(
-            Phaser.Input.Keyboard.KeyCodes.ESC
-        );
-
-        this.input.keyboard.on("keyup", () =>
-            this.paddle?.body?.setVelocityX(0)
-        );
-
-        this.escKey.on("down", () => {
-            this.togglePause();
-        });
-    }
-
-    togglePause() {
-        this.isPaused = !this.isPaused;
-
-        if (this.isPaused) {
-            this.physics.pause();
-            this.gameUI.showPauseMenu();
-        } else {
-            this.physics.resume();
-            this.gameUI.hidePauseMenu();
-        }
-    }
-
-    pauseGame() {
-        this.isPaused = true;
-        this.physics.pause();
-        this.gameUI.showPauseMenu();
-    }
-
-    resumeGame() {
-        this.isPaused = false;
-        this.physics.resume();
-        this.gameUI.hidePauseMenu();
-        this.pauseOverlay?.destroy();
-    }
-
-    // ==============================================
-    // Object Creation Methods
-    // ==============================================
 
     createBall(x = this.scale.width / 2, y = this.scale.height / 2) {
         const ball = this.add.circle(
@@ -157,13 +136,6 @@ export default class GameScene extends Phaser.Scene {
         ball.body
             .setCollideWorldBounds(true)
             .setBounce(physicsConstants.ball.bounce);
-
-        if (this.ballLaunched) {
-            ball.body.setVelocity(
-                Phaser.Math.Between(-200, 200),
-                physicsConstants.ball.initialVelocity.Y
-            );
-        }
 
         this.setupBallCollisions(ball);
 
@@ -189,66 +161,81 @@ export default class GameScene extends Phaser.Scene {
         const bricks = this.physics.add.staticGroup();
         const { offset, width, height, padding } = gameConstants.brick;
 
-        this.powerUpCounts = {
-            multiBall: 0,
-            extraLife: 0,
-        };
+        this.resetPowerUpCounts();
 
         for (let row = 0; row < gameConstants.brick.count.row; row++) {
             for (let col = 0; col < gameConstants.brick.count.column; col++) {
-                const x = offset.left + col * (width + padding) + width / 2;
-                const y = offset.top + row * (height + padding) + height / 2;
-
-                let color = gameConstants.brick.color;
-                let powerUpType = null;
-
-                if (
-                    Phaser.Math.FloatBetween(0, 1) <=
-                    gameConstants.powerUps.chance
-                ) {
-                    const availableTypes = [];
-
-                    if (
-                        this.powerUpCounts.multiBall <
-                        gameConstants.powerUps.maxSpawn.multiBall
-                    ) {
-                        availableTypes.push(
-                            gameConstants.powerUps.types.multiBall
-                        );
-                    }
-                    if (
-                        this.powerUpCounts.extraLife <
-                        gameConstants.powerUps.maxSpawn.extraLife
-                    ) {
-                        availableTypes.push(
-                            gameConstants.powerUps.types.extraLife
-                        );
-                    }
-
-                    if (availableTypes.length > 0) {
-                        powerUpType = Phaser.Math.RND.pick(availableTypes);
-                        this.powerUpCounts[
-                            powerUpType ===
-                            gameConstants.powerUps.types.multiBall
-                                ? "multiBall"
-                                : "extraLife"
-                        ]++;
-
-                        color = gameConstants.powerUps.colors[powerUpType];
-                    }
-                }
-
-                const brick = this.add
-                    .rectangle(x, y, width, height, color)
-                    .setOrigin(0.5);
-                brick.powerUpType = powerUpType;
-
-                this.physics.add.existing(brick, true);
-                bricks.add(brick);
+                this.createBrick(
+                    bricks,
+                    row,
+                    col,
+                    offset,
+                    width,
+                    height,
+                    padding
+                );
             }
         }
 
         return bricks;
+    }
+
+    createBrick(bricks, row, col, offset, width, height, padding) {
+        const x = offset.left + col * (width + padding) + width / 2;
+        const y = offset.top + row * (height + padding) + height / 2;
+
+        const { color, powerUpType } = this.determineBrickType();
+        const brick = this.add
+            .rectangle(x, y, width, height, color)
+            .setOrigin(0.5);
+
+        brick.powerUpType = powerUpType;
+
+        this.physics.add.existing(brick, true);
+
+        bricks.add(brick);
+    }
+
+    determineBrickType() {
+        let color = gameConstants.brick.color;
+        let powerUpType = null;
+
+        if (Phaser.Math.FloatBetween(0, 1) <= gameConstants.powerUps.chance) {
+            const availableTypes = this.getAvailablePowerUpTypes();
+
+            if (availableTypes.length > 0) {
+                powerUpType = Phaser.Math.RND.pick(availableTypes);
+
+                this.powerUpCounts[
+                    powerUpType === gameConstants.powerUps.types.multiBall
+                        ? "multiBall"
+                        : "extraLife"
+                ]++;
+
+                color = gameConstants.powerUps.colors[powerUpType];
+            }
+        }
+
+        return { color, powerUpType };
+    }
+
+    getAvailablePowerUpTypes() {
+        const availableTypes = [];
+        const { maxSpawn, types } = gameConstants.powerUps;
+
+        if (this.powerUpCounts.multiBall < maxSpawn.multiBall) {
+            availableTypes.push(types.multiBall);
+        }
+
+        if (this.powerUpCounts.extraLife < maxSpawn.extraLife) {
+            availableTypes.push(types.extraLife);
+        }
+
+        return availableTypes;
+    }
+
+    resetPowerUpCounts() {
+        this.powerUpCounts = { multiBall: 0, extraLife: 0 };
     }
 
     createLava() {
@@ -266,8 +253,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // ==============================================
-    // Collision and Physics Methods
+    // Physics & Collisions
     // ==============================================
+
+    setupPhysics() {
+        this.physics.world.setBoundsCollision(true, true, true, false);
+        this.physics.world.colliders.destroy();
+        this.balls.forEach((ball) => this.setupBallCollisions(ball));
+    }
 
     setupBallCollisions(ball) {
         this.physics.add.collider(
@@ -295,6 +288,110 @@ export default class GameScene extends Phaser.Scene {
         );
     }
 
+    // ==============================================
+    // Input Handling
+    // ==============================================
+
+    setupInput() {
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.spaceKey = this.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.SPACE
+        );
+        this.escKey = this.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.ESC
+        );
+
+        this.escKey.on("down", () => {
+            this.togglePause();
+        });
+    }
+
+    handlePaddleMovement() {
+        if (!this.paddle?.body) return;
+        const velocity = this.calculatePaddleVelocity();
+        this.paddle.body.setVelocityX(velocity);
+    }
+
+    calculatePaddleVelocity() {
+        const { speed } = physicsConstants.paddle;
+        if (this.cursors.left.isDown) return -speed;
+        if (this.cursors.right.isDown) return speed;
+        return 0;
+    }
+
+    handleBallLaunchInput() {
+        if (
+            Phaser.Input.Keyboard.JustDown(this.spaceKey) &&
+            !this.ballLaunched &&
+            this.balls.length > 0
+        )
+            this.launchBall();
+    }
+
+    handleStickBallToPaddle() {
+        if (!this.ballLaunched && this.balls.length === 1)
+            this.stickBallToPaddle();
+    }
+
+    launchBall() {
+        this.removeTitleText();
+
+        const mainBall = this.balls[0];
+        const { launchVelocity } = physicsConstants.ball;
+
+        mainBall.body.setVelocity(
+            Phaser.Math.Between(-launchVelocity.X, launchVelocity.X),
+            launchVelocity.Y
+        );
+
+        this.ballLaunched = true;
+    }
+
+    removeTitleText() {
+        if (this.titleText) {
+            this.tweens.add({
+                targets: this.titleText,
+                alpha: 0,
+                duration: 500,
+                ease: "Power2",
+                onComplete: () => {
+                    this.titleText.destroy();
+                    this.titleText = null;
+                },
+            });
+        }
+    }
+
+    // ==============================================
+    // Game State Management
+    // ==============================================
+
+    stickBallToPaddle() {
+        if (this.balls.length === 0 || !this.paddle || !this.balls[0].body)
+            return;
+
+        const mainBall = this.balls[0];
+
+        mainBall.setPosition(
+            this.paddle.x,
+            this.paddle.y - this.paddle.height / 2 - gameConstants.ball.radius
+        );
+
+        mainBall.body.setVelocity(0, 0);
+
+        this.ballLaunched = false;
+    }
+
+    updateGame() {
+        this.handlePaddleMovement();
+        this.handleBallLaunchInput();
+        this.handleStickBallToPaddle();
+    }
+
+    // ==============================================
+    // Game Logic
+    // ==============================================
+
     handleBallCollision() {
         // WIP
     }
@@ -321,64 +418,21 @@ export default class GameScene extends Phaser.Scene {
         }
 
         if (this.balls.length === 0) {
-            const remainingLives = this.gameUI.livesDisplay.decrement();
-            this.gameUI.scoreDisplay.decrement(gameConstants.lavaPenalty);
-
-            remainingLives <= 0 ? this.gameOver() : this.resetAfterLava();
+            this.handleBallLoss();
         }
+    }
+
+    handleBallLoss() {
+        const remainingLives = this.gameUI.livesDisplay.decrement();
+        this.gameUI.scoreDisplay.decrement(gameConstants.lavaPenalty);
+        remainingLives <= 0 ? this.gameOver() : this.resetAfterLava();
     }
 
     // ==============================================
-    // Game State Management Methods
+    // Power-up System
     // ==============================================
 
-    stickBallToPaddle() {
-        if (this.balls.length === 0 || !this.paddle || !this.balls[0].body)
-            return;
-
-        const mainBall = this.balls[0];
-
-        mainBall.setPosition(
-            this.paddle.x,
-            this.paddle.y - this.paddle.height / 2 - gameConstants.ball.radius
-        );
-
-        mainBall.body.setVelocity(0, 0);
-
-        this.ballLaunched = false;
-    }
-
-    handleBallLaunchInput() {
-        if (
-            Phaser.Input.Keyboard.JustDown(this.spaceKey) &&
-            !this.ballLaunched &&
-            this.balls.length > 0
-        ) {
-            this.launchBall();
-        }
-    }
-
-    handleStickBallToPaddle() {
-        if (!this.ballLaunched && this.balls.length === 1) {
-            this.stickBallToPaddle();
-        }
-    }
-
-    launchBall() {
-        const mainBall = this.balls[0];
-
-        mainBall.body.setVelocity(
-            Phaser.Math.Between(
-                -physicsConstants.ball.launchVelocity.X,
-                physicsConstants.ball.launchVelocity.X
-            ),
-            physicsConstants.ball.launchVelocity.Y
-        );
-
-        this.ballLaunched = true;
-    }
-
-    activatePowerUp(type, x, y) {
+    activatePowerUp(type) {
         switch (type) {
             case gameConstants.powerUps.types.multiBall:
                 this.activateMultiBall();
@@ -420,6 +474,7 @@ export default class GameScene extends Phaser.Scene {
 
         while (this.balls.length > 1) {
             const ball = this.balls.pop();
+
             ball.destroy();
         }
 
@@ -430,20 +485,20 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 
-    handlePaddleMovement() {
-        if (!this.paddle?.body) return;
+    // ==============================================
+    // Game Flow Control
+    // ==============================================
 
-        const velocity = this.cursors.left.isDown
-            ? -physicsConstants.paddle.speed
-            : this.cursors.right.isDown
-            ? physicsConstants.paddle.speed
-            : 0;
-
-        this.paddle.body.setVelocityX(velocity);
+    togglePause() {
+        this.isPaused = !this.isPaused;
+        this.isPaused ? this.physics.pause() : this.physics.resume();
+        this.isPaused
+            ? this.gameUI.showPauseMenu()
+            : this.gameUI.hidePauseMenu();
     }
 
     resetAfterLava() {
-        if (this.balls.length === 0) {
+        if (!this.balls.length) {
             this.ball = this.createBall();
             this.balls.push(this.ball);
         }
@@ -457,25 +512,23 @@ export default class GameScene extends Phaser.Scene {
         this.stickBallToPaddle();
     }
 
-    // ==============================================
-    // Cleanup and Game Flow Methods
-    // ==============================================
-
     async gameOver() {
         this.sounds.lose.play();
         this.physics.pause();
         this.input.keyboard.enabled = false;
 
-        this.balls.forEach((ball) => ball.destroy());
-        this.balls = [];
-
-        [this.paddle, this.bricks].forEach((obj) => obj?.setVisible(false));
-
+        this.cleanupGameObjects();
         this.gameUI.setVisible(false);
 
         await this.gameOverUI.show(this.gameUI.getScore());
 
         this.input.keyboard.enabled = true;
         this.scene.restart();
+    }
+
+    cleanupGameObjects() {
+        this.balls.forEach((ball) => ball.destroy());
+        this.balls = [];
+        [this.paddle, this.bricks].forEach((obj) => obj?.setVisible(false));
     }
 }
