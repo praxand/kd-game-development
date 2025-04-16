@@ -1,38 +1,71 @@
+const colors = {
+    black: 0x000000,
+    white: 0xffffff,
+    green: 0x00ff00,
+    red: 0xff0000,
+    yellow: 0xffff00,
+};
+
 const gameConstants = {
     startingScore: 0,
     baseScore: 100,
+    lavaPenalty: 500,
     startingLives: 3,
     maxLives: 3,
-    lavaPenalty: 500,
+    ui: {
+        scorePosition: { x: 16, y: 16 },
+        livesPosition: { x: 630, y: 16 },
+        textStyle: {
+            fontSize: "32px",
+            fill: `#${colors.white.toString(16)}`,
+        },
+        gameOverStyle: {
+            fontFamily: "Arial",
+            fontSize: "32px",
+            color: `#${colors.white.toString(16)}`,
+            align: "center",
+        },
+        restartStyle: {
+            fontFamily: "Arial",
+            fontSize: "32px",
+            color: `#${colors.yellow.toString(16)}`,
+        },
+        pauseMenuStyle: {
+            fontFamily: "Arial",
+            fontSize: "32px",
+            color: `#${colors.white.toString(16)}`,
+            align: "center",
+        },
+    },
     powerUps: {
         types: {
-            MULTI_BALL: "multiBall",
-            EXTRA_LIFE: "extraLife",
+            multiBall: "multiBall",
+            extraLife: "extraLife",
         },
         maxSpawn: {
-            MULTI_BALL: 5,
-            EXTRA_LIFE: 3,
+            multiBall: 5,
+            extraLife: 3,
         },
         colors: {
-            multiBall: 0xaa00ff,
-            extraLife: 0x00aa00,
+            multiBall: colors.red,
+            extraLife: colors.green,
         },
         chance: 0.15,
     },
     paddle: {
         width: 140,
         height: 10,
-        color: 0xffffff,
+        color: colors.white,
         yPosition: 570,
     },
     ball: {
         radius: 10,
-        color: 0xffffff,
+        color: colors.white,
     },
     brick: {
         width: 50,
         height: 20,
-        color: 0xffffff,
+        color: colors.white,
         count: {
             row: 4,
             column: 12,
@@ -43,34 +76,9 @@ const gameConstants = {
         },
         padding: 10,
     },
-    ui: {
-        scorePosition: { x: 16, y: 16 },
-        livesPosition: { x: 630, y: 16 },
-        textStyle: {
-            fontSize: "32px",
-            fill: "#fff",
-        },
-        gameOverStyle: {
-            fontFamily: "Arial",
-            fontSize: "48px",
-            color: "#ffffff",
-            align: "center",
-        },
-        restartStyle: {
-            fontFamily: "Arial",
-            fontSize: "32px",
-            color: "#ffff00",
-        },
-        pauseMenuStyle: {
-            fontFamily: "Arial",
-            fontSize: "32px",
-            color: "#ffffff",
-            align: "center",
-        },
-    },
     world: {
         lavaHeight: 10,
-        lavaColor: 0x00000,
+        lavaColor: colors.black,
     },
 };
 

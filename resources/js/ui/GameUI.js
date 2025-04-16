@@ -36,25 +36,21 @@ export default class GameUI {
     }
 
     getScore() {
-        return this.scoreDisplay?.getScore() ?? 0;
+        return this.scoreDisplay.score;
     }
 
     showPauseMenu() {
-        if (!this.pauseText) {
-            this.pauseText = this.scene.add.text(
+        return (this.pauseText = this.scene.add
+            .text(
                 this.scene.scale.width / 2,
                 this.scene.scale.height / 2,
                 "PAUSED\n\nPress ESC to resume",
                 gameConstants.ui.pauseMenuStyle
             )
-            .setOrigin(0.5)
-            .setDepth(100);
-        } else {
-            this.pauseText.setVisible(true);
-        }
+            .setOrigin(0.5));
     }
-    
+
     hidePauseMenu() {
-        this.pauseText?.setVisible(false);
+        return this.pauseText.setVisible(false);
     }
 }

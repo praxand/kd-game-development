@@ -8,24 +8,16 @@ export default class ScoreDisplay extends Phaser.GameObjects.Text {
 
     updateScore(newScore) {
         this.score = newScore;
-        this.setText(`Score: ${this.score}`);
+        this.setText(`Score: ${newScore}`);
     }
 
-    add(amount) {
-        this.score += amount;
-        this.updateScore(this.score);
-
-        return this.score;
+    increment(amount) {
+        return this.updateScore(this.score + amount);
     }
 
-    subtract(amount) {
-        this.score = this.score - amount < 0 ? 0 : this.score - amount;
-        this.updateScore(this.score);
-
-        return this.score;
-    }
-
-    getScore() {
-        return this.score;
+    decrement(amount) {
+        return this.updateScore(
+            this.score - amount < 0 ? 0 : this.score - amount
+        );
     }
 }

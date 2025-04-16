@@ -5,13 +5,11 @@ export default class LivesDisplay extends Phaser.GameObjects.Text {
         super(scene, x, y, `Lives: ${initialLives}`, style);
 
         this.lives = initialLives;
-
         scene.add.existing(this);
     }
 
     updateLives(newLives) {
         this.lives = newLives;
-
         this.setText(`Lives: ${this.lives}`);
 
         return this.lives;

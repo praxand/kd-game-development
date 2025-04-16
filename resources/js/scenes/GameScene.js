@@ -214,18 +214,18 @@ export default class GameScene extends Phaser.Scene {
 
                     if (
                         this.powerUpCounts.multiBall <
-                        gameConstants.powerUps.maxSpawn.MULTI_BALL
+                        gameConstants.powerUps.maxSpawn.multiBall
                     ) {
                         availableTypes.push(
-                            gameConstants.powerUps.types.MULTI_BALL
+                            gameConstants.powerUps.types.multiBall
                         );
                     }
                     if (
                         this.powerUpCounts.extraLife <
-                        gameConstants.powerUps.maxSpawn.EXTRA_LIFE
+                        gameConstants.powerUps.maxSpawn.extraLife
                     ) {
                         availableTypes.push(
-                            gameConstants.powerUps.types.EXTRA_LIFE
+                            gameConstants.powerUps.types.extraLife
                         );
                     }
 
@@ -233,7 +233,7 @@ export default class GameScene extends Phaser.Scene {
                         powerUpType = Phaser.Math.RND.pick(availableTypes);
                         this.powerUpCounts[
                             powerUpType ===
-                            gameConstants.powerUps.types.MULTI_BALL
+                            gameConstants.powerUps.types.multiBall
                                 ? "multiBall"
                                 : "extraLife"
                         ]++;
@@ -305,7 +305,7 @@ export default class GameScene extends Phaser.Scene {
 
     handleBrickCollision(ball, brick) {
         brick.destroy();
-        this.gameUI.scoreDisplay.add(gameConstants.baseScore);
+        this.gameUI.scoreDisplay.increment(gameConstants.baseScore);
 
         if (brick.powerUpType) {
             this.activatePowerUp(brick.powerUpType);
@@ -326,7 +326,7 @@ export default class GameScene extends Phaser.Scene {
 
         if (this.balls.length === 0) {
             const remainingLives = this.gameUI.livesDisplay.decrement();
-            this.gameUI.scoreDisplay.subtract(gameConstants.lavaPenalty);
+            this.gameUI.scoreDisplay.decrement(gameConstants.lavaPenalty);
 
             remainingLives <= 0 ? this.gameOver() : this.resetAfterLava();
         }
@@ -384,11 +384,11 @@ export default class GameScene extends Phaser.Scene {
 
     activatePowerUp(type, x, y) {
         switch (type) {
-            case gameConstants.powerUps.types.MULTI_BALL:
+            case gameConstants.powerUps.types.multiBall:
                 this.activateMultiBall();
                 break;
 
-            case gameConstants.powerUps.types.EXTRA_LIFE:
+            case gameConstants.powerUps.types.extraLife:
                 this.gameUI.livesDisplay.increment();
                 break;
         }

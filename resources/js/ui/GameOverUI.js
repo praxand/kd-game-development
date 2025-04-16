@@ -31,7 +31,9 @@ export default class GameOverUI {
             const handler = () => {
                 gameOverText.destroy();
                 restartButton.destroy();
+
                 this.scene.input.keyboard.off("keydown-R", handler);
+
                 resolve();
             };
 
