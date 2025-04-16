@@ -12,6 +12,10 @@ export default class GameScene extends Phaser.Scene {
     constructor() {
         super("game-scene");
         this.resetGameState();
+        this.powerUpCounts = {
+            multiBall: 0,
+            extraLife: 0,
+        };
     }
 
     // ==============================================
@@ -19,6 +23,14 @@ export default class GameScene extends Phaser.Scene {
     // ==============================================
 
     create() {
+        this.sounds = {
+            lose: this.sound.add("lose"),
+            win: this.sound.add("win"),
+        };
+
+        // Set global volume (0 to 1)
+        this.sound.volume = 0.5;
+
         this.initGameComponents();
         this.stickBallToPaddle();
     }
@@ -29,6 +41,20 @@ export default class GameScene extends Phaser.Scene {
         this.handlePaddleMovement();
         this.handleBallLaunchInput();
         this.handleStickBallToPaddle();
+    }
+
+    preload() {
+        const folder = "assets/sounds/";
+
+        this.load.audio(
+            "lose",
+            `${folder}270334__littlerobotsoundfactory__jingle_lose_01.wav`
+        );
+
+        this.load.audio(
+            "win",
+            `${folder}270319__littlerobotsoundfactory__jingle_win_01.wav`
+        );
     }
 
     // ==============================================
@@ -95,7 +121,7 @@ export default class GameScene extends Phaser.Scene {
 
     togglePause() {
         this.isPaused = !this.isPaused;
-        
+
         if (this.isPaused) {
             this.physics.pause();
             this.gameUI.showPauseMenu();
@@ -167,19 +193,59 @@ export default class GameScene extends Phaser.Scene {
         const bricks = this.physics.add.staticGroup();
         const { offset, width, height, padding } = gameConstants.brick;
 
+        this.powerUpCounts = {
+            multiBall: 0,
+            extraLife: 0,
+        };
+
         for (let row = 0; row < gameConstants.brick.count.row; row++) {
             for (let col = 0; col < gameConstants.brick.count.column; col++) {
                 const x = offset.left + col * (width + padding) + width / 2;
                 const y = offset.top + row * (height + padding) + height / 2;
-                const isPowerUpBrick = Phaser.Math.Between(1, 10) === 1;
-                const color = isPowerUpBrick
-                    ? 0xff00ff
-                    : gameConstants.brick.color;
+
+                let color = gameConstants.brick.color;
+                let powerUpType = null;
+
+                if (
+                    Phaser.Math.FloatBetween(0, 1) <=
+                    gameConstants.powerUps.chance
+                ) {
+                    const availableTypes = [];
+
+                    if (
+                        this.powerUpCounts.multiBall <
+                        gameConstants.powerUps.maxSpawn.MULTI_BALL
+                    ) {
+                        availableTypes.push(
+                            gameConstants.powerUps.types.MULTI_BALL
+                        );
+                    }
+                    if (
+                        this.powerUpCounts.extraLife <
+                        gameConstants.powerUps.maxSpawn.EXTRA_LIFE
+                    ) {
+                        availableTypes.push(
+                            gameConstants.powerUps.types.EXTRA_LIFE
+                        );
+                    }
+
+                    if (availableTypes.length > 0) {
+                        powerUpType = Phaser.Math.RND.pick(availableTypes);
+                        this.powerUpCounts[
+                            powerUpType ===
+                            gameConstants.powerUps.types.MULTI_BALL
+                                ? "multiBall"
+                                : "extraLife"
+                        ]++;
+
+                        color = gameConstants.powerUps.colors[powerUpType];
+                    }
+                }
 
                 const brick = this.add
                     .rectangle(x, y, width, height, color)
                     .setOrigin(0.5);
-                brick.isPowerUp = isPowerUpBrick;
+                brick.powerUpType = powerUpType;
 
                 this.physics.add.existing(brick, true);
                 bricks.add(brick);
@@ -241,12 +307,12 @@ export default class GameScene extends Phaser.Scene {
         brick.destroy();
         this.gameUI.scoreDisplay.add(gameConstants.baseScore);
 
-        if (brick.isPowerUp) {
-            this.activateMultiBall();
+        if (brick.powerUpType) {
+            this.activatePowerUp(brick.powerUpType);
         }
 
-        if (this.bricks.countActive() === 0) {
-            this.time.delayedCall(1, () => this.gameOver());
+        if (this.bricks.countActive() === 47) {
+            this.sounds.win.play();
         }
     }
 
@@ -271,7 +337,8 @@ export default class GameScene extends Phaser.Scene {
     // ==============================================
 
     stickBallToPaddle() {
-        if (this.balls.length === 0 || !this.paddle || !this.balls[0].body) return;
+        if (this.balls.length === 0 || !this.paddle || !this.balls[0].body)
+            return;
 
         const mainBall = this.balls[0];
 
@@ -313,6 +380,18 @@ export default class GameScene extends Phaser.Scene {
         );
 
         this.ballLaunched = true;
+    }
+
+    activatePowerUp(type, x, y) {
+        switch (type) {
+            case gameConstants.powerUps.types.MULTI_BALL:
+                this.activateMultiBall();
+                break;
+
+            case gameConstants.powerUps.types.EXTRA_LIFE:
+                this.gameUI.livesDisplay.increment();
+                break;
+        }
     }
 
     activateMultiBall() {
@@ -387,15 +466,14 @@ export default class GameScene extends Phaser.Scene {
     // ==============================================
 
     async gameOver() {
+        this.sounds.lose.play();
         this.physics.pause();
         this.input.keyboard.enabled = false;
 
         this.balls.forEach((ball) => ball.destroy());
         this.balls = [];
 
-        [this.paddle, this.bricks].forEach((obj) =>
-            obj?.setVisible(false)
-        );
+        [this.paddle, this.bricks].forEach((obj) => obj?.setVisible(false));
 
         this.gameUI.setVisible(false);
 

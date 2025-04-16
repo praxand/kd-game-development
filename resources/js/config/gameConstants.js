@@ -4,6 +4,21 @@ const gameConstants = {
     startingLives: 3,
     maxLives: 3,
     lavaPenalty: 500,
+    powerUps: {
+        types: {
+            MULTI_BALL: "multiBall",
+            EXTRA_LIFE: "extraLife",
+        },
+        maxSpawn: {
+            MULTI_BALL: 5,
+            EXTRA_LIFE: 3,
+        },
+        colors: {
+            multiBall: 0xaa00ff,
+            extraLife: 0x00aa00,
+        },
+        chance: 0.15,
+    },
     paddle: {
         width: 140,
         height: 10,
@@ -47,11 +62,11 @@ const gameConstants = {
             color: "#ffff00",
         },
         pauseMenuStyle: {
-            fontFamily: 'Arial',
-            fontSize: '32px',
-            color: '#ffffff',
-            align: 'center', 
-        }
+            fontFamily: "Arial",
+            fontSize: "32px",
+            color: "#ffffff",
+            align: "center",
+        },
     },
     world: {
         lavaHeight: 10,

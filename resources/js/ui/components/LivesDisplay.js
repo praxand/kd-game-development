@@ -1,4 +1,4 @@
-// import gameConstants from "../../config/gameConstants";
+import gameConstants from "../../config/gameConstants";
 
 export default class LivesDisplay extends Phaser.GameObjects.Text {
     constructor(scene, x, y, initialLives, style) {
@@ -17,11 +17,11 @@ export default class LivesDisplay extends Phaser.GameObjects.Text {
         return this.lives;
     }
 
-    // increment() {
-    //     return this.updateLives(
-    //         this.lives < gameConstants.maxLives ? ++this.lives : this.lives
-    //     );
-    // }
+    increment() {
+        return this.updateLives(
+            this.lives < gameConstants.maxLives ? ++this.lives : this.lives
+        );
+    }
 
     decrement() {
         return this.updateLives(--this.lives);
