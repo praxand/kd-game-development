@@ -1,18 +1,38 @@
 <x-layouts.app :title="__('Dashboard')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
-            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
-            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
-        </div>
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
+        <div class="overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
+            <table class="w-full">
+                <thead class="border-b border-neutral-200 dark:border-neutral-700">
+                    <tr>
+                        <th class="w-20 p-3 text-left text-sm font-semibold tracking-wide">No.</th>
+                        <th class="p-3 text-left text-sm font-semibold tracking-wide">Name</th>
+                        <th class="w-24 p-3 text-left text-sm font-semibold tracking-wide">Score</th>
+                        <th class="w-32 p-3 text-left text-sm font-semibold tracking-wide">Lives</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
+                    @foreach ($data as $score)
+                        <tr>
+                            <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
+                                {{ $loop->iteration }}
+                            </td>
+
+                            <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
+                                {{ $score->user->name }}
+                            </td>
+
+                            <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
+                                {{ $score->score }}
+                            </td>
+
+                            <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
+                                {{ $score->lives }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 </x-layouts.app>
