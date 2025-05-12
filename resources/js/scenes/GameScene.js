@@ -40,24 +40,34 @@ export default class GameScene extends Phaser.Scene {
             this.explosionParticles.push(particle);
         }
 
-        // this.confettiPool = [];
-        // const confettiColors = [
-        //     0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff,
-        // ];
+        // this.createConfettiTexture();
+    
+        // // Create particle emitter
+        // this.confettiEmitter = this.add.particles(0, 0, 'confetti', {
+        //     scale: { start: 0.5, end: 0 },
+        //     lifespan: 2000,
+        //     speed: { min: 100, max: 300 },
+        //     angle: { min: 240, max: 300 },
+        //     gravityY: 800,
+        //     bounce: 0.5,
+        //     quantity: 10,
+        //     blendMode: 'ADD'
+        // });
+        // this.confettiEmitter.stop();
+    }
 
-        // for (let i = 0; i < 100; i++) {
-        //     const confetti = this.add.rectangle(
-        //         0,
-        //         0,
-        //         Phaser.Math.Between(8, 16),
-        //         Phaser.Math.Between(4, 8),
-        //         confettiColors[
-        //             Phaser.Math.Between(0, confettiColors.length - 1)
-        //         ]
-        //     );
-        //     confetti.setActive(false).setVisible(false);
-        //     this.confettiPool.push(confetti);
-        // }
+    createConfettiTexture() {
+        const size = 16;
+        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+        
+        const texture = this.textures.createCanvas('confetti', size * colors.length, size);
+        
+        colors.forEach((color, i) => {
+            texture.context.fillStyle = Phaser.Display.Color.IntegerToColor(color).rgba;
+            texture.context.fillRect(i * size, 0, size, size);
+        });
+        
+        texture.refresh();
     }
 
     update() {
@@ -141,6 +151,16 @@ export default class GameScene extends Phaser.Scene {
                 height / 2 - 50,
                 "Best Education",
                 gameConstants.ui.titleStyle
+            )
+            .setOrigin(0.5)
+            .setDepth(1);
+
+        this.titleTextSmall = this.add
+            .text(
+                width / 2,
+                height / 2 + 50,
+                "Multiball = Red\nExtra Life = Green",
+                gameConstants.ui.titleStyleSmall
             )
             .setOrigin(0.5)
             .setDepth(1);
@@ -390,6 +410,17 @@ export default class GameScene extends Phaser.Scene {
                     this.titleText = null;
                 },
             });
+
+            this.tweens.add({
+                targets: this.titleTextSmall,
+                alpha: 0,
+                duration: 500,
+                ease: "Power2",
+                onComplete: () => {
+                    this.titleTextSmall.destroy();
+                    this.titleTextSmall = null;
+                },
+            }); 
         }
     }
 
@@ -440,55 +471,37 @@ export default class GameScene extends Phaser.Scene {
         if (this.bricks.countActive() === 47) this.triggerWinEffects();
     }
 
+    createConfettiTexture() {
+        const size = 16;
+        const colors = [
+            0xff0000, 0x00ff00, 0x0000ff,  // red, green, blue
+            0xffff00, 0xff00ff, 0x00ffff,   // yellow, magenta, cyan
+            0xff8800, 0x8800ff, 0x00ff88    // orange, purple, teal
+        ];
+        
+        // Create a texture with multiple colored rectangles
+        const texture = this.textures.createCanvas('confetti', size, size * colors.length);
+        
+        colors.forEach((color, i) => {
+            texture.context.fillStyle = Phaser.Display.Color.IntegerToColor(color).rgba;
+            texture.context.fillRect(0, i * size, size, size);
+        });
+        
+        texture.refresh();
+    }
+
     triggerWinEffects() {
         // for (let i = 0; i < 5; i++) {
         //     this.time.delayedCall(i * 300, () => {
-        //         this.createConfettiExplosion(
-        //             Phaser.Math.Between(100, this.scale.width - 100),
-        //             -50,
-        //             30
+        //         this.confettiEmitter.emitParticle(
+        //             30, // quantity
+        //             Phaser.Math.Between(100, this.scale.width - 100), // x
+        //             -50 // y
         //         );
         //     });
         // }
 
         this.gameOver(true);
-    }
-
-    createConfettiExplosion(x, y, count = 30) {
-        const activeConfetti = [];
-
-        for (let i = 0; i < count; i++) {
-            const confetti = this.confettiPool.find((c) => !c.active);
-            if (!confetti) continue;
-
-            confetti
-                .setPosition(x, y)
-                .setActive(true)
-                .setVisible(true)
-                .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
-
-            this.physics.add.existing(confetti);
-            confetti.body.setVelocity(
-                Phaser.Math.Between(-300, 300),
-                Phaser.Math.Between(-600, -200)
-            );
-            confetti.body.setAngularVelocity(Phaser.Math.FloatBetween(-5, 5));
-            confetti.body.setGravityY(800);
-
-            this.tweens.add({
-                targets: confetti,
-                alpha: 0,
-                duration: Phaser.Math.Between(1500, 3000),
-                onComplete: () => {
-                    confetti.setActive(false).setVisible(false);
-                    this.physics.world.remove(confetti.body);
-                },
-            });
-
-            activeConfetti.push(confetti);
-        }
-
-        return activeConfetti;
     }
 
     createBrickExplosion(x, y) {

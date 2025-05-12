@@ -4,7 +4,7 @@ const colors = {
     green: 0x00ff00,
     red: 0xff0000,
     yellow: 0xffff00,
-    gold: 0xffd700
+    gold: 0xffd700,
 };
 
 const gameConstants = {
@@ -22,9 +22,14 @@ const gameConstants = {
             fill: `#${colors.white.toString(16)}`,
         },
         titleStyle: {
-                fontFamily: '"Arial Black"',
-                fontSize: "72px",
-                color: `#${colors.yellow.toString(16)}`,
+            fontFamily: '"Arial Black"',
+            fontSize: "72px",
+            color: `#${colors.yellow.toString(16)}`,
+        },
+        titleStyleSmall: {
+            fontFamily: '"Arial Black"',
+            fontSize: "36px",
+            color: `#${colors.yellow.toString(16)}`,
         },
         gameOverStyle: {
             fontFamily: "Arial",
