@@ -2,6 +2,8 @@
     <div id="game"></div>
 
     <script>
+        userId = {{ auth()->user()->id }};
+
         (function() {
             if (window.localStorage) {
                 if (!localStorage.getItem('firstLoad')) {

@@ -42,7 +42,7 @@ export default class GameOverUI {
                 gameOverText.destroy();
                 restartButton.destroy();
                 scoreButton.destroy();
-                this.scene.input.keyboard.off("keydown-R", cleanupAndResolve);
+
                 resolve();
             };
 
@@ -51,19 +51,16 @@ export default class GameOverUI {
             scoreButton.on("pointerdown", () => {
                 const data = { userId, score, lives };
 
-                axios
-                    .post("/api/score", data)
-                    .then((response) => {
-                        // console.log("Score saved:", response.data);
-                        cleanupAndResolve();
-                    })
-                    .catch((error) => {
-                        console.error("Error saving score:", error);
-                        cleanupAndResolve();
-                    });
+                fetch("/api/score", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                }).then(() => {
+                    cleanupAndResolve();
+                });
             });
-
-            this.scene.input.keyboard.on("keydown-R", cleanupAndResolve);
         });
     }
 }

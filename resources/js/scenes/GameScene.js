@@ -437,7 +437,7 @@ export default class GameScene extends Phaser.Scene {
             this.activatePowerUp(brick.powerUpType);
         }
 
-        if (this.bricks.countActive() === 40) this.triggerWinEffects();
+        if (this.bricks.countActive() === 47) this.triggerWinEffects();
     }
 
     triggerWinEffects() {
