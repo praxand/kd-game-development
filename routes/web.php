@@ -1,25 +1,20 @@
 <?php
 
-use App\Models\Score;
+use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function () {
-    Route::get('/', function () {
-        return view('home');
-    })->name('home');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('/', 'dashboard')->name('dashboard');
+    Route::view('/leaderboard', 'leaderboard')->name('leaderboard');
+});
+Route::middleware(['auth'])->group(function () {
+    Route::redirect('settings', 'settings/profile');
 
-    Route::get('/leaderboard', function () {
-        $scores = Score::orderBy('score', 'desc')
-            ->orderBy('lives', 'desc')
-            ->take(10)
-            ->get();
-
-        return view('leaderboard', compact('scores'));
-    })->name('leaderboard');
-
-    Route::get('/account', function () {
-        return true;
-    })->name('account');
+    Route::get('settings/profile', Profile::class)->name('settings.profile');
+    Route::get('settings/password', Password::class)->name('settings.password');
+    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
 require __DIR__ . '/auth.php';
