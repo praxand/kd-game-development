@@ -24,7 +24,6 @@ export default class GameScene extends Phaser.Scene {
 
     create() {
         this.initAudio();
-        this.createTitleText();
         this.initGameComponents();
         this.stickBallToPaddle();
 
@@ -41,7 +40,7 @@ export default class GameScene extends Phaser.Scene {
         }
 
         // this.createConfettiTexture();
-    
+
         // // Create particle emitter
         // this.confettiEmitter = this.add.particles(0, 0, 'confetti', {
         //     scale: { start: 0.5, end: 0 },
@@ -58,15 +57,22 @@ export default class GameScene extends Phaser.Scene {
 
     createConfettiTexture() {
         const size = 16;
-        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
-        
-        const texture = this.textures.createCanvas('confetti', size * colors.length, size);
-        
+        const colors = [
+            0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff,
+        ];
+
+        const texture = this.textures.createCanvas(
+            "confetti",
+            size * colors.length,
+            size
+        );
+
         colors.forEach((color, i) => {
-            texture.context.fillStyle = Phaser.Display.Color.IntegerToColor(color).rgba;
+            texture.context.fillStyle =
+                Phaser.Display.Color.IntegerToColor(color).rgba;
             texture.context.fillRect(i * size, 0, size, size);
         });
-        
+
         texture.refresh();
     }
 
@@ -82,7 +88,6 @@ export default class GameScene extends Phaser.Scene {
     initState() {
         this.resetGameState();
         this.powerUpCounts = { multiBall: 0, extraLife: 0 };
-        this.titleText = null;
     }
 
     resetGameState() {
@@ -111,6 +116,7 @@ export default class GameScene extends Phaser.Scene {
 
     initUI() {
         this.gameUI = new GameUI(this);
+        this.gameUI.StartDisplay.show();
         this.gameOverUI = new GameOverUI(this);
     }
 
@@ -141,30 +147,6 @@ export default class GameScene extends Phaser.Scene {
     // ==============================================
     // Game Object Creation
     // ==============================================
-
-    createTitleText() {
-        const { width, height } = this.scale;
-
-        this.titleText = this.add
-            .text(
-                width / 2,
-                height / 2 - 50,
-                "Best Education",
-                gameConstants.ui.titleStyle
-            )
-            .setOrigin(0.5)
-            .setDepth(1);
-
-        this.titleTextSmall = this.add
-            .text(
-                width / 2,
-                height / 2 + 50,
-                "Multiball = Red\nExtra Life = Green",
-                gameConstants.ui.titleStyleSmall
-            )
-            .setOrigin(0.5)
-            .setDepth(1);
-    }
 
     createGameObjects() {
         this.ball = this.createBall();
@@ -353,11 +335,14 @@ export default class GameScene extends Phaser.Scene {
         );
 
         this.escKey.on("down", () => {
-            this.togglePause();
+            if (this.ballLaunched) {
+                this.togglePause();
+            }
         });
     }
 
     handlePaddleMovement() {
+        // if (!this.ballLaunched) return;
         if (!this.paddle?.body) return;
         const velocity = this.calculatePaddleVelocity();
         this.paddle.body.setVelocityX(velocity);
@@ -385,7 +370,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     launchBall() {
-        this.removeTitleText();
+        this.gameUI.StartDisplay.hide();
 
         const mainBall = this.balls[0];
         const { launchVelocity } = physicsConstants.ball;
@@ -396,32 +381,6 @@ export default class GameScene extends Phaser.Scene {
         );
 
         this.ballLaunched = true;
-    }
-
-    removeTitleText() {
-        if (this.titleText) {
-            this.tweens.add({
-                targets: this.titleText,
-                alpha: 0,
-                duration: 500,
-                ease: "Power2",
-                onComplete: () => {
-                    this.titleText.destroy();
-                    this.titleText = null;
-                },
-            });
-
-            this.tweens.add({
-                targets: this.titleTextSmall,
-                alpha: 0,
-                duration: 500,
-                ease: "Power2",
-                onComplete: () => {
-                    this.titleTextSmall.destroy();
-                    this.titleTextSmall = null;
-                },
-            }); 
-        }
     }
 
     // ==============================================
@@ -468,25 +427,36 @@ export default class GameScene extends Phaser.Scene {
             this.activatePowerUp(brick.powerUpType);
         }
 
-        if (this.bricks.countActive() === 47) this.triggerWinEffects();
+        if (this.bricks.countActive() === 40) this.triggerWinEffects();
     }
 
     createConfettiTexture() {
         const size = 16;
         const colors = [
-            0xff0000, 0x00ff00, 0x0000ff,  // red, green, blue
-            0xffff00, 0xff00ff, 0x00ffff,   // yellow, magenta, cyan
-            0xff8800, 0x8800ff, 0x00ff88    // orange, purple, teal
+            0xff0000,
+            0x00ff00,
+            0x0000ff, // red, green, blue
+            0xffff00,
+            0xff00ff,
+            0x00ffff, // yellow, magenta, cyan
+            0xff8800,
+            0x8800ff,
+            0x00ff88, // orange, purple, teal
         ];
-        
+
         // Create a texture with multiple colored rectangles
-        const texture = this.textures.createCanvas('confetti', size, size * colors.length);
-        
+        const texture = this.textures.createCanvas(
+            "confetti",
+            size,
+            size * colors.length
+        );
+
         colors.forEach((color, i) => {
-            texture.context.fillStyle = Phaser.Display.Color.IntegerToColor(color).rgba;
+            texture.context.fillStyle =
+                Phaser.Display.Color.IntegerToColor(color).rgba;
             texture.context.fillRect(0, i * size, size, size);
         });
-        
+
         texture.refresh();
     }
 
@@ -618,8 +588,8 @@ export default class GameScene extends Phaser.Scene {
         this.isPaused = !this.isPaused;
         this.isPaused ? this.physics.pause() : this.physics.resume();
         this.isPaused
-            ? this.gameUI.showPauseMenu()
-            : this.gameUI.hidePauseMenu();
+            ? this.gameUI.pauseDisplay.show()
+            : this.gameUI.pauseDisplay.hide();
     }
 
     resetAfterLava() {
@@ -642,23 +612,30 @@ export default class GameScene extends Phaser.Scene {
         this.input.keyboard.enabled = false;
 
         this.cleanupGameObjects();
-        this.gameUI.setVisible(false);
 
         if (isWin) {
             this.sounds.win.play();
         } else {
             this.sounds.lose.play();
         }
-        
-        await this.gameOverUI.show(window.userId, this.gameUI.getScore(), this.gameUI.getLives());
+
+        await this.gameOverUI.show(
+            window.userId,
+            this.gameUI.scoreDisplay.score,
+            this.gameUI.livesDisplay.lives
+        );
 
         this.input.keyboard.enabled = true;
         this.scene.restart();
     }
 
-    cleanupGameObjects() {
+    cleanupGameObjects() { 
         this.balls.forEach((ball) => ball.destroy());
         this.balls = [];
+
         [this.paddle, this.bricks].forEach((obj) => obj?.setVisible(false));
+
+        this.gameUI.livesDisplay.setVisible(false);
+        this.gameUI.scoreDisplay.setVisible(false);
     }
 }

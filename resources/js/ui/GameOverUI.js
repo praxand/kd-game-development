@@ -1,4 +1,8 @@
-import gameConstants from "../config/gameConstants";
+import {
+    GameOverText,
+    RestartButton,
+    SaveScoreButton,
+} from "./components/GameOverComponents";
 
 export default class GameOverUI {
     constructor(scene) {
@@ -6,61 +10,35 @@ export default class GameOverUI {
     }
 
     show(userId, score, lives) {
-        const { width, height } = this.scene.scale;
-
-        const gameOverText = this.scene.add
-            .text(
-                width / 2,
-                height / 2 - 50,
-                `GAME OVER\nScore: ${score}`,
-                gameConstants.ui.gameOverStyle
-            )
-            .setOrigin(0.5);
-
-        const restartButton = this.scene.add
-            .text(
-                width / 2,
-                height / 2 + 50,
-                "Click to Restart",
-                gameConstants.ui.restartStyle
-            )
-            .setOrigin(0.5)
-            .setInteractive();
-
-        const scoreButton = this.scene.add
-            .text(
-                width / 2,
-                height / 2 + 100,
-                "Click to save score",
-                gameConstants.ui.restartStyle
-            )
-            .setOrigin(0.5)
-            .setInteractive();
+        this.gameOverText = new GameOverText(this.scene, score);
+        this.restartButton = new RestartButton(this.scene);
+        this.saveScoreButton = new SaveScoreButton(this.scene);
 
         return new Promise((resolve) => {
-            const cleanupAndResolve = () => {
-                gameOverText.destroy();
-                restartButton.destroy();
-                scoreButton.destroy();
-
+            this.restartButton.on("pointerdown", () => {
+                this.cleanup();
                 resolve();
-            };
+            });
 
-            restartButton.on("pointerdown", cleanupAndResolve);
-
-            scoreButton.on("pointerdown", () => {
-                const data = { userId, score, lives };
-
-                fetch("/api/score", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                }).then(() => {
-                    cleanupAndResolve();
-                });
+            this.saveScoreButton.on("pointerdown", async () => {
+                await this.saveScore(userId, score, lives);
+                this.cleanup();
+                resolve();
             });
         });
+    }
+
+    async saveScore(userId, score, lives) {
+        await fetch("/api/score", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, score, lives }),
+        });
+    }
+
+    cleanup() {
+        this.gameOverText.destroy();
+        this.restartButton.destroy();
+        this.saveScoreButton.destroy();
     }
 }

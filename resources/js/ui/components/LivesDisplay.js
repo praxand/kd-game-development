@@ -1,27 +1,28 @@
 import gameConstants from "../../config/gameConstants";
 
 export default class LivesDisplay extends Phaser.GameObjects.Text {
-    constructor(scene, x, y, initialLives, style) {
-        super(scene, x, y, `Lives: ${initialLives}`, style);
+    constructor(scene) {
+        super(scene, 630, 16, "", {
+            fontSize: 32,
+        });
 
-        this.lives = initialLives;
+        this.setLives(gameConstants.startingLives);
+
         scene.add.existing(this);
     }
 
-    updateLives(newLives) {
-        this.lives = newLives;
+    setLives(value) {
+        this.lives = Phaser.Math.Clamp(value, 0, gameConstants.maxLives);
         this.setText(`Lives: ${this.lives}`);
 
         return this.lives;
     }
 
     increment() {
-        return this.updateLives(
-            this.lives < gameConstants.maxLives ? ++this.lives : this.lives
-        );
+        return this.setLives(++this.lives);
     }
 
     decrement() {
-        return this.updateLives(--this.lives);
+        return this.setLives(--this.lives);
     }
 }

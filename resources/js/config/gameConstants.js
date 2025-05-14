@@ -14,41 +14,6 @@ const gameConstants = {
     lavaPenalty: 500,
     startingLives: 3,
     maxLives: 3,
-    ui: {
-        scorePosition: { x: 16, y: 16 },
-        livesPosition: { x: 630, y: 16 },
-        textStyle: {
-            fontSize: "32px",
-            fill: `#${colors.white.toString(16)}`,
-        },
-        titleStyle: {
-            fontFamily: '"Arial Black"',
-            fontSize: "72px",
-            color: `#${colors.yellow.toString(16)}`,
-        },
-        titleStyleSmall: {
-            fontFamily: '"Arial Black"',
-            fontSize: "36px",
-            color: `#${colors.yellow.toString(16)}`,
-        },
-        gameOverStyle: {
-            fontFamily: "Arial",
-            fontSize: "32px",
-            color: `#${colors.white.toString(16)}`,
-            align: "center",
-        },
-        restartStyle: {
-            fontFamily: "Arial",
-            fontSize: "32px",
-            color: `#${colors.yellow.toString(16)}`,
-        },
-        pauseMenuStyle: {
-            fontFamily: "Arial",
-            fontSize: "32px",
-            color: `#${colors.white.toString(16)}`,
-            align: "center",
-        },
-    },
     powerUps: {
         types: {
             multiBall: "multiBall",

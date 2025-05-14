@@ -1,23 +1,28 @@
-export default class ScoreDisplay extends Phaser.GameObjects.Text {
-    constructor(scene, x, y, initialScore, style) {
-        super(scene, x, y, `Score: ${initialScore}`, style);
+import gameConstants from "../../config/gameConstants";
 
-        this.score = initialScore;
+export default class ScoreDisplay extends Phaser.GameObjects.Text {
+    constructor(scene) {
+        super(scene, 16, 16, "", {
+            fontSize: 32,
+        });
+
+        this.setScore(gameConstants.startingScore);
+
         scene.add.existing(this);
     }
 
-    updateScore(newScore) {
-        this.score = newScore;
-        this.setText(`Score: ${newScore}`);
+    setScore(value) {
+        this.score = Math.max(0, value);
+        this.setText(`Score: ${this.score}`);
+
+        return this.score;
     }
 
     increment(amount) {
-        return this.updateScore(this.score + amount);
+        return this.setScore(this.score + amount);
     }
 
     decrement(amount) {
-        return this.updateScore(
-            this.score - amount < 0 ? 0 : this.score - amount
-        );
+        return this.setScore(this.score - amount < 0 ? 0 : this.score - amount);
     }
 }
