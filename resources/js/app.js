@@ -1,11 +1,13 @@
 import GameScene from "./scenes/GameScene";
 
-if (document.getElementById("game")) {
+const gameElement = document.getElementById("game");
+
+if (gameElement) {
     const gameConfig = {
         type: Phaser.AUTO,
         width: 800,
         height: 600,
-        parent: document.getElementById("game"),
+        parent: gameElement,
         scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
