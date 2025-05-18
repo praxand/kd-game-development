@@ -352,11 +352,40 @@ export default class GameScene extends Phaser.Scene {
         brick.destroy();
         this.gameUI.scoreDisplay.increment(gameConstants.baseScore);
 
+        this.increaseBallSpeed();
+
         if (brick.powerUpType) {
             this.activatePowerUp(brick.powerUpType);
         }
 
-        if (this.bricks.countActive() === 47) this.triggerWinEffects();
+        if (this.bricks.countActive() === 0) this.triggerWinEffects();
+    }
+
+    increaseBallSpeed() {
+        const { speedIncreasePerBrick, maxSpeedMultiplier, launchVelocity } = physicsConstants.ball;
+        
+        this.balls.forEach(ball => {
+            if (!ball.body) return;
+            
+            // Bereken huidige snelheidsvector
+            const velocity = ball.body.velocity.clone();
+            const currentSpeed = velocity.length();
+            
+            // Bereken nieuwe snelheid (met maximum)
+            const baseSpeed = new Phaser.Math.Vector2(
+                launchVelocity.X, 
+                launchVelocity.Y
+            ).length();
+            
+            const maxSpeed = baseSpeed * maxSpeedMultiplier;
+            const newSpeed = Math.min(currentSpeed + speedIncreasePerBrick, maxSpeed);
+            
+            // Pas snelheid aan behoudende richting
+            if (currentSpeed > 0) {
+                velocity.normalize().scale(newSpeed);
+                ball.body.setVelocity(velocity.x, velocity.y);
+            }
+        });
     }
 
     triggerWinEffects() {
@@ -462,7 +491,7 @@ export default class GameScene extends Phaser.Scene {
         this.physics.pause();
 
         this.cleanupGameObjects();
-        this.audioManager.play(isWin ? 'win' : 'lose');
+        this.audioManager.play(isWin ? "win" : "lose");
 
         await this.gameOverUI.show(
             isWin,

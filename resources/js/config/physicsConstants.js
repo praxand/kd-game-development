@@ -22,6 +22,8 @@ const physicsConstants = {
             Y: -250, // snelheid in pixels per seconde
         },
         bounce: 1, // Volledige terugkaatsing
+        speedIncreasePerBrick: 5, // Snelheidstoename per gebroken blok
+        maxSpeedMultiplier: 2.5, // Maximale snelheidsverhoging (2.5x origineel)
     },
 };
 
