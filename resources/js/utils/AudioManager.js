@@ -22,7 +22,6 @@ export default class AudioManager {
         // Loop door alle audio files uit de config
         Object.entries(fileConstants.audio.files).forEach(([key, filename]) => {
             // Laad elk audio bestand in
-
             this.scene.load.audio(
                 key, // Unieke sleutel voor het geluid
                 `${fileConstants.audio.folder + filename}` // Volledig path
@@ -49,6 +48,9 @@ export default class AudioManager {
      */
     play(key) {
         // Audiobestand afspelen als het bestaat
-        this.sounds[key]?.play() || console.error(`Sound "${key}" not found`);
+        return (
+            this.sounds[key]?.play() ||
+            console.error(`Sound "${key}" not found`)
+        );
     }
 }
