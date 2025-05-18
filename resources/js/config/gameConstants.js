@@ -1,6 +1,6 @@
 /**
  * Kleurdefinities voor het spel
- * Gebruikt hexadecimale kleurwaarden
+ * Gebruikt hexadecimale kleurcodes
  */
 const colors = {
     black: 0x000000, // zwart
@@ -10,29 +10,29 @@ const colors = {
 };
 
 /**
- * Centrale configuratieconstanten voor het spel
+ * Centrale configuratie constanten voor het spel
  * Bevat alle belangrijke instellingen voor gameplay, graphics en mechanics
  */
 const gameConstants = {
-    // Audio-instellingen
-    volume: 0.5, // Standaard volume (0-1)
+    // Audio configuratie
+    volume: 0.5, // Standaard volume
 
-    // Score-instellingen
-    startingScore: 0, // Beginscore bij start spel
-    baseScore: 100, // Basis punten per gebroken blok
-    lavaPenalty: 500, // Puntenaftrek bij bal in lava
+    // Score configuratie
+    startingScore: 0, // Score waarmee het spel begint
+    baseScore: 100, // Punten die je krijgt voor het breken van een blok
+    lavaPenalty: 500, // Punten die je verliest als de bal in de lava valt
 
-    // Levenssysteem
-    startingLives: 3, // Aantal startlevens
-    maxLives: 3, // Maximum aantal levens
+    // Levens configuratie
+    startingLives: 3, // Levens waarmee het spel begint
+    maxLives: 3, // Maximale levens die je kunt hebben
 
-    // Game state berichten
+    // Game over berichten
     winMessage: "YOU WIN!", // Win bericht
     loseMessage: "GAME OVER", // Verlies bericht
 
     // Power-up configuratie
     powerUps: {
-        // Types van power-ups
+        // Types van de power-ups
         types: {
             multiBall: "multiBall", // Multibal power-up
             extraLife: "extraLife", // Extra leven power-up
@@ -40,17 +40,17 @@ const gameConstants = {
 
         // Maximum aantal power-ups per type dat kan spawnen
         maxSpawn: {
-            multiBall: 5, // Max multiballen
-            extraLife: 3, // Max extra levens
+            multiBall: 5,
+            extraLife: 3,
         },
 
         // Kleuren per power-up type
         colors: {
-            multiBall: colors.red, // Rode blokken = multibal
-            extraLife: colors.green, // Groene blokken = extra leven
+            multiBall: colors.red, // Rode blokken voor multiballen
+            extraLife: colors.green, // Groene blokken voor extra levens
         },
 
-        // Kans dat een blok een power-up bevat (15%)
+        // Kans dat een blok een power-up bevat in procent
         chance: 0.15,
     },
 
@@ -59,7 +59,7 @@ const gameConstants = {
         width: 140, // Breedte van de peddel in pixels
         height: 10, // Hoogte van de peddel in pixels
         color: colors.white, // Kleur van de peddel
-        yPosition: 570, // Verticale positie
+        yPosition: 570, // Verticale positie van de peddel in pixels
     },
 
     // Bal configuratie
@@ -72,7 +72,7 @@ const gameConstants = {
     brick: {
         width: 50, // Breedte van elk blok in pixels
         height: 20, // Hoogte van elk blok in pixels
-        color: colors.white, // Standaard kleur
+        color: colors.white, // Standaard kleur van de blokken
 
         // Aantal blokken
         count: {
@@ -86,7 +86,7 @@ const gameConstants = {
             left: 60, // Afstand vanaf linkerkant in pixels
         },
 
-        padding: 10, // Ruimte tussen blokken
+        padding: 10, // Ruimte tussen de blokken
     },
 
     // Wereld configuratie

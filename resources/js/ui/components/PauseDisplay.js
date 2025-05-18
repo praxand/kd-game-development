@@ -1,18 +1,24 @@
 /**
- * PauseDisplay - Beheert het pauze-scherm met overlay en instructies
- * Toont een semi-transparante overlay met pauze-informatie wanneer het spel gepauzeerd is
+ * PauseDisplay - Beheert het pauze scherm met overlay en instructies
+ * Toont een semi-transparante overlay met pauze informatie wanneer het spel gepauzeerd is
  */
 export default class PauseDisplay extends Phaser.GameObjects.Text {
     /**
-     * Maakt een pauze-display aan
-     * @param {Phaser.Scene} scene - De Phaser scene waarin dit display komt
+     * Maakt een pauze display aan
+     * @param {Phaser.Scene} scene - De Phaser scene waarin de display wordt aangemaakt
      */
     constructor(scene) {
         // Roep de parent constructor aan met de positie, tekst en stijl
-        super(scene, 400, 300, "PAUSED\nPress ESC to resume", {
-            fontSize: 32, // Grootte van de tekst
-            align: "center", // Gecentreerde uitlijning
-        });
+        super(
+            scene, // Phaser scene
+            400, // Horizontale positie
+            300, // Verticale positie
+            "PAUSED\nPress ESC to resume", // Pauze tekst
+            {
+                fontSize: 32, // Grootte van de tekst
+                align: "center", // Gecentreerde uitlijning
+            }
+        );
 
         // Haal de camera dimensies op voor de overlay
         const { centerX, centerY, width, height } = scene.cameras.main;
@@ -22,8 +28,8 @@ export default class PauseDisplay extends Phaser.GameObjects.Text {
             .rectangle(
                 centerX, // Horizontale positie
                 centerY, // Verticale positie
-                width, // Volledige breedte
-                height, // Volledige hoogte
+                width, // Breedte
+                height, // Hoogte
                 0x000000, // Zwarte kleur
                 0.5 // 50% transparantie
             )
@@ -39,7 +45,7 @@ export default class PauseDisplay extends Phaser.GameObjects.Text {
     }
 
     /**
-     * Schakel de pauze-display zichtbaarheid
+     * Schakel de pauze display zichtbaarheid
      * @param {boolean} show - Of de display getoond moet worden
      * @returns {PauseDisplay} this voor method chaining
      */

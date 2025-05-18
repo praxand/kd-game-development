@@ -7,15 +7,21 @@ import gameConstants from "../../config/gameConstants";
 export default class ScoreDisplay extends Phaser.GameObjects.Text {
     /**
      * Maakt een score display aan
-     * @param {Phaser.Scene} scene - De Phaser scene waarin dit display komt
+     * @param {Phaser.Scene} scene - De Phaser scene waar de tekst aan toegevoegd wordt
      */
     constructor(scene) {
         // Roep de parent constructor aan met de positie, tekst en stijl
-        super(scene, 16, 16, "", {
-            fontSize: 32, // Grootte van de tekst
-        });
+        super(
+            scene, // Phaser scene
+            16, // Horizontale positie
+            16, // Verticale positie
+            "", // Lege tekst
+            {
+                fontSize: 32, // Grootte van de tekst
+            }
+        );
 
-        // Zet het startaantal punten (uit gameConstants)
+        // Zet het startaantal punten uit de config
         this.setScore(gameConstants.startingScore);
 
         // Voeg de tekst toe aan de scene
@@ -23,7 +29,7 @@ export default class ScoreDisplay extends Phaser.GameObjects.Text {
     }
 
     /**
-     * Stel de score in (garandeert niet-negatieve waarde)
+     * Stel de score in
      * @param {number} value - Gewenste score
      * @returns {number} De daadwerkelijk ingestelde score
      */
@@ -49,7 +55,7 @@ export default class ScoreDisplay extends Phaser.GameObjects.Text {
     }
 
     /**
-     * Verlaag de score met een bepaalde hoeveelheid (maar niet onder 0)
+     * Verlaag de score met een bepaalde hoeveelheid
      * @param {number} amount - Aantal punten om af te trekken
      * @returns {number} De nieuwe score
      */

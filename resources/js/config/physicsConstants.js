@@ -3,27 +3,21 @@
  * Definieert beweging, snelheden en botsingseigenschappen van game objects
  */
 const physicsConstants = {
-    /**
-     * Instellingen voor de peddel
-     */
+    // Peddel configuratie
     paddle: {
         speed: 300, // snelheid van de peddel in pixels per seconde
     },
 
-    /**
-     * Instellingen voor de bal
-     */
+    // Bal configuratie
     ball: {
-        /**
-         * Snelheid bij het lanceren van de bal
-         */
+        // De snelheid van de bal in pixels per seconde
         launchVelocity: {
-            X: 150, // snelheid in pixels per seconde
-            Y: -250, // snelheid in pixels per seconde
+            X: 150, // Horizontale snelheid
+            Y: -250, // Verticale snelheid
         },
-        bounce: 1, // Volledige terugkaatsing
+        bounce: 1, // Terugkaatsingswaarde van de bal
         speedIncreasePerBrick: 5, // Snelheidstoename per gebroken blok
-        maxSpeedMultiplier: 2.5, // Maximale snelheidsverhoging (2.5x origineel)
+        maxSpeedMultiplier: 2.5, // Maximale snelheidsverhoging
     },
 };
 

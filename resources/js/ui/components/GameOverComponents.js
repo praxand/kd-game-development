@@ -1,17 +1,17 @@
 /**
- * GameOverText - Toont het game-over bericht met de behaalde score
+ * GameOverText - Toont het game over bericht met de behaalde score
  * Gecentreerd in het scherm met duidelijke opmaak
  */
 export class GameOverText extends Phaser.GameObjects.Text {
     /**
-     * Maakt een game-over tekst aan
+     * Maakt een game over tekst aan
      * @param {Phaser.Scene} scene - De Phaser scene
      * @param {string} message - Win/verlies bericht
      * @param {number} score - De behaalde score
      */
     constructor(scene, message, score) {
         super(
-            scene, // De scene waarin de tekst wordt weergegeven
+            scene, // Phaser scene
             400, // Horizontale positie
             250, // Verticale positie
             `${message}\nScore: ${score}`, // Tekst met score
@@ -21,7 +21,7 @@ export class GameOverText extends Phaser.GameObjects.Text {
             }
         );
 
-        this.setOrigin(0.5); // Perfecte centering voor tekst
+        this.setOrigin(0.5); // Perfecte centering
 
         // Voeg de tekst toe aan de scene
         scene.add.existing(this);
@@ -40,7 +40,7 @@ export class RestartButton extends Phaser.GameObjects.Text {
     constructor(scene) {
         // Roep de parent constructor aan met de positie, tekst en stijl
         super(
-            scene,
+            scene, // Phaser scene
             400, // Horizontale positie
             350, // Verticale positie
             "Click to restart", // Tekst voor de knop
@@ -67,7 +67,7 @@ export class RestartButton extends Phaser.GameObjects.Text {
  */
 export class SaveScoreButton extends Phaser.GameObjects.Text {
     /**
-     * Maakt een score-opslaan knop aan
+     * Maakt een score opslaan knop aan
      * @param {Phaser.Scene} scene - De Phaser scene
      */
     constructor(scene) {

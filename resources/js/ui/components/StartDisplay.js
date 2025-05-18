@@ -5,21 +5,21 @@
 export default class StartDisplay extends Phaser.GameObjects.Container {
     /**
      * Maakt een startscherm aan
-     * @param {Phaser.Scene} scene - De Phaser scene waarin dit display komt
+     * @param {Phaser.Scene} scene - De Phaser scene waar de container aan toegevoegd wordt
      */
     constructor(scene) {
         // Roep de parent constructor aan met de positie
         super(
-            scene,
+            scene, // Phaser scene
             scene.cameras.main.centerX, // Horizontale positie
-            scene.cameras.main.centerY - 50 // Verticale positie 50 pixels hoger
+            scene.cameras.main.centerY - 50 // Verticale positie
         );
 
         // Maak de titel aan
         this.titleText = new Phaser.GameObjects.Text(
             scene,
-            0,
-            0,
+            0, // Horizontale positie
+            0, // Verticale positie
             "Best Education", // Titel van het spel
             {
                 fontSize: "72px", // Grootte van de tekst
@@ -28,11 +28,11 @@ export default class StartDisplay extends Phaser.GameObjects.Container {
             }
         ).setOrigin(0.5); // Perfecte centering
 
-        // Maak een subtitel voor de tekst
+        // Maak een subtitel aan
         this.subtitleText = new Phaser.GameObjects.Text(
             scene,
-            0,
-            80, // Plaats de subtitel onder de titel
+            0, // Horizontale positie
+            80, // Verticale positie
             "Press SPACE to start", // Subtitel van het spel
             {
                 fontSize: "32px", // Grootte van de tekst
@@ -56,7 +56,7 @@ export default class StartDisplay extends Phaser.GameObjects.Container {
         // Maak de container zichtbaar
         this.setVisible(true);
 
-        // Voeg een knipperanimatie toe aan de subtitel:
+        // Voeg een knipperanimatie toe aan de subtitel
         this.scene.tweens.add({
             targets: this.subtitleText,
             alpha: 0.5, // 50% transparantie

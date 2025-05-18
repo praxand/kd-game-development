@@ -17,7 +17,7 @@ if (gameElement) {
      * @type {Phaser.Types.Core.GameConfig}
      */
     const gameConfig = {
-        type: Phaser.AUTO, // Automatische renderer selectie (WebGL of Canvas)
+        type: Phaser.AUTO, // Automatische renderer selectie
         width: 800, // Standaard breedte van het game canvas
         height: 600, // Standaard hoogte van het game canvas
         parent: gameElement, // DOM element waarin de game geladen wordt
@@ -27,12 +27,8 @@ if (gameElement) {
         },
         physics: {
             default: "arcade", // Gebruik Arcade Physics systeem
-            arcade: {
-                debug: false, // Debug modus uitgeschakeld
-                gravity: { y: 0 }, // Zwaartekracht instelling
-            },
         },
-        scene: [GameScene], // Array van scenes
+        scene: [GameScene], // Array van de scene(s)
     };
 
     /**

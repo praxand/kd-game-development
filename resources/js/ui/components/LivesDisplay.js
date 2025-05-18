@@ -11,9 +11,15 @@ export default class LivesDisplay extends Phaser.GameObjects.Text {
      */
     constructor(scene) {
         // Roep de parent constructor aan met de positie, tekst en stijl
-        super(scene, 630, 16, "", {
-            fontSize: 32, // Grootte van de tekst
-        });
+        super(
+            scene, // Phaser scene
+            630, // Horizontale positie
+            16, // Verticale positie
+            "", // Lege tekst
+            {
+                fontSize: 32, // Grootte van de tekst
+            }
+        );
 
         // Zet het startaantal levens uit de config
         this.setLives(gameConstants.startingLives);
@@ -23,7 +29,7 @@ export default class LivesDisplay extends Phaser.GameObjects.Text {
     }
 
     /**
-     * Stel het aantal levens in (met automatische clamping)
+     * Stel het aantal levens in
      * @param {number} value - Gewenst aantal levens
      * @returns {number} Het daadwerkelijk ingestelde aantal levens
      */

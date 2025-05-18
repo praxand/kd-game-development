@@ -24,7 +24,7 @@ export default class AudioManager {
             // Laad elk audio bestand in
             this.scene.load.audio(
                 key, // Unieke sleutel voor het geluid
-                `${fileConstants.audio.folder + filename}` // Volledig path
+                `${fileConstants.audio.folder + filename}` // Volledige pad naar het bestand
             );
         });
     }
@@ -38,7 +38,7 @@ export default class AudioManager {
             this.sounds[key] = this.scene.sound.add(key);
         });
 
-        // Stel hoofdvolume in vanuit config
+        // Stel hoofdvolume in vanuit de config
         this.scene.sound.volume = gameConstants.volume;
     }
 
@@ -47,7 +47,7 @@ export default class AudioManager {
      * @param {string} key - Sleutel van het geluid
      */
     play(key) {
-        // Audiobestand afspelen als het bestaat
+        // Audiobestand afspelen als het bestaat anders een foutmelding geven
         return (
             this.sounds[key]?.play() ||
             console.error(`Sound "${key}" not found`)

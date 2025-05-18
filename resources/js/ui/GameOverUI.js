@@ -6,20 +6,20 @@ import {
 } from "./components/GameOverComponents";
 
 /**
- * GameOverUI klasse voor het beheren van het game-over scherm
+ * GameOverUI klasse voor het beheren van het game over scherm
  * Handelt zowel win als lose scenario's en score opslaan
  */
 export default class GameOverUI {
     /**
      * Initialiseer de GameOverUI
-     * @param {Phaser.Scene} scene - De Phaser scene waarin dit UI komt
+     * @param {Phaser.Scene} scene - De Phaser scene waar de UI komt
      */
     constructor(scene) {
         this.scene = scene; // Bewaar een referentie naar de scene
     }
 
     /**
-     * Toon het game-over scherm
+     * Toon het game over scherm
      * @param {boolean} isWin - Of de speler heeft gewonnen
      * @param {string} userId - Unieke ID van de speler
      * @param {number} score - Behaalde score
