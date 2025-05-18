@@ -3,8 +3,6 @@ const colors = {
     white: 0xffffff,
     green: 0x00ff00,
     red: 0xff0000,
-    yellow: 0xffff00,
-    gold: 0xffd700,
 };
 
 const gameConstants = {
