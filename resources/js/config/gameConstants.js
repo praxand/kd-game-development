@@ -14,6 +14,8 @@ const gameConstants = {
     lavaPenalty: 500,
     startingLives: 3,
     maxLives: 3,
+    winMessage: "YOU WIN!",
+    loseMessage: "GAME OVER",
     powerUps: {
         types: {
             multiBall: "multiBall",

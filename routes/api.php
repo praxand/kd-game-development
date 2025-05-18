@@ -5,14 +5,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/score', function (Request $request) {
-    // $validated = $request->validate([
-    //     'userId' => 'required|integer|exists:users,id',
-    //     'score' => 'required|integer',
-    //     'lives' => 'required|integer',
-    // ]);
+    $validated = $request->validate([
+        'userId' => 'required|integer|exists:users,id',
+        'score' => 'required|integer',
+        'lives' => 'required|integer',
+    ]);
 
-    $userId = $request->userId;
-    $user = User::find($userId);
+    $user = User::find($validated['userId']);
 
     if (!$user) {
         return response()->json([
@@ -21,8 +20,8 @@ Route::post('/score', function (Request $request) {
     }
 
     $user->scores()->create([
-        'score' => $request->score,
-        'lives' => $request->lives,
+        'score' => $validated['score'],
+        'lives' => $validated['lives'],
     ]);
 
     return response()->json([

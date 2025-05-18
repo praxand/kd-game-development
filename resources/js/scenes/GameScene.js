@@ -3,12 +3,9 @@ import gameConstants from "../config/gameConstants";
 import physicsConstants from "../config/physicsConstants";
 import GameUI from "../ui/GameUI";
 import GameOverUI from "../ui/GameOverUI";
+import AudioManager from "../utils/AudioManager";
 
 export default class GameScene extends Phaser.Scene {
-    // ==============================================
-    // Constructor and Core Properties
-    // ==============================================
-
     constructor() {
         super("game-scene");
         this.initState();
@@ -19,61 +16,14 @@ export default class GameScene extends Phaser.Scene {
     // ==============================================
 
     preload() {
-        this.loadAudioAssets();
+        this.audioManager = new AudioManager(this);
+        this.audioManager.preload();
     }
 
     create() {
-        this.initAudio();
+        this.audioManager.init();
         this.initGameComponents();
         this.stickBallToPaddle();
-
-        this.explosionParticles = [];
-        for (let i = 0; i < 50; i++) {
-            const particle = this.add.circle(
-                0,
-                0,
-                Phaser.Math.Between(2, 5),
-                0xffffff
-            );
-            particle.setActive(false).setVisible(false);
-            this.explosionParticles.push(particle);
-        }
-
-        // this.createConfettiTexture();
-
-        // // Create particle emitter
-        // this.confettiEmitter = this.add.particles(0, 0, 'confetti', {
-        //     scale: { start: 0.5, end: 0 },
-        //     lifespan: 2000,
-        //     speed: { min: 100, max: 300 },
-        //     angle: { min: 240, max: 300 },
-        //     gravityY: 800,
-        //     bounce: 0.5,
-        //     quantity: 10,
-        //     blendMode: 'ADD'
-        // });
-        // this.confettiEmitter.stop();
-    }
-
-    createConfettiTexture() {
-        const size = 16;
-        const colors = [
-            0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff,
-        ];
-
-        const texture = this.textures.createCanvas(
-            "confetti",
-            size * colors.length,
-            size
-        );
-
-        colors.forEach((color, i) => {
-            texture.context.fillStyle =
-                Phaser.Display.Color.IntegerToColor(color).rgba;
-            texture.context.fillRect(i * size, 0, size, size);
-        });
-
-        texture.refresh();
     }
 
     update() {
@@ -91,21 +41,26 @@ export default class GameScene extends Phaser.Scene {
     }
 
     resetGameState() {
-        this.ball = null;
         this.balls = [];
+        this.ballLaunched = false;
+        this.powerUpActive = false;
+        this.isPaused = false;
+
+        this.ball = null;
         this.paddle = null;
         this.bricks = null;
         this.lava = null;
         this.cursors = null;
         this.spaceKey = null;
         this.escKey = null;
-        this.ballLaunched = false;
-        this.powerUpActive = false;
         this.multiBallTimeout = null;
         this.gameUI = null;
         this.gameOverUI = null;
-        this.isPaused = false;
     }
+
+    // ==============================================
+    // Game Setup Methods
+    // ==============================================
 
     initGameComponents() {
         this.createGameObjects();
@@ -118,30 +73,6 @@ export default class GameScene extends Phaser.Scene {
         this.gameUI = new GameUI(this);
         this.gameUI.StartDisplay.show();
         this.gameOverUI = new GameOverUI(this);
-    }
-
-    // ==============================================
-    // Audio Methods
-    // ==============================================
-
-    loadAudioAssets() {
-        const sounds = {
-            win: "270319__littlerobotsoundfactory__jingle_win_01.wav",
-            lose: "270334__littlerobotsoundfactory__jingle_lose_01.wav",
-        };
-
-        Object.entries(sounds).forEach(([key, value]) => {
-            this.load.audio(key, `assets/sounds/${value}`);
-        });
-    }
-
-    initAudio() {
-        this.sounds = {
-            win: this.sound.add("win"),
-            lose: this.sound.add("lose"),
-        };
-
-        this.sound.volume = gameConstants.volume;
     }
 
     // ==============================================
@@ -418,8 +349,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     handleBrickCollision(ball, brick) {
-        this.createBrickExplosion(brick.x, brick.y);
-
         brick.destroy();
         this.gameUI.scoreDisplay.increment(gameConstants.baseScore);
 
@@ -427,81 +356,11 @@ export default class GameScene extends Phaser.Scene {
             this.activatePowerUp(brick.powerUpType);
         }
 
-        if (this.bricks.countActive() === 40) this.triggerWinEffects();
-    }
-
-    createConfettiTexture() {
-        const size = 16;
-        const colors = [
-            0xff0000,
-            0x00ff00,
-            0x0000ff, // red, green, blue
-            0xffff00,
-            0xff00ff,
-            0x00ffff, // yellow, magenta, cyan
-            0xff8800,
-            0x8800ff,
-            0x00ff88, // orange, purple, teal
-        ];
-
-        // Create a texture with multiple colored rectangles
-        const texture = this.textures.createCanvas(
-            "confetti",
-            size,
-            size * colors.length
-        );
-
-        colors.forEach((color, i) => {
-            texture.context.fillStyle =
-                Phaser.Display.Color.IntegerToColor(color).rgba;
-            texture.context.fillRect(0, i * size, size, size);
-        });
-
-        texture.refresh();
+        if (this.bricks.countActive() === 47) this.triggerWinEffects();
     }
 
     triggerWinEffects() {
-        // for (let i = 0; i < 5; i++) {
-        //     this.time.delayedCall(i * 300, () => {
-        //         this.confettiEmitter.emitParticle(
-        //             30, // quantity
-        //             Phaser.Math.Between(100, this.scale.width - 100), // x
-        //             -50 // y
-        //         );
-        //     });
-        // }
-
         this.gameOver(true);
-    }
-
-    createBrickExplosion(x, y) {
-        // Get 5-8 available particles
-        const particles = this.explosionParticles
-            .filter((p) => !p.active)
-            .slice(0, Phaser.Math.Between(5, 8));
-
-        particles.forEach((particle) => {
-            particle
-                .setPosition(x, y)
-                .setActive(true)
-                .setVisible(true)
-                .setAlpha(1);
-
-            const angle = Phaser.Math.Between(0, 360);
-            const speed = Phaser.Math.Between(50, 150);
-
-            this.tweens.add({
-                targets: particle,
-                x: particle.x + Math.cos(Phaser.Math.DegToRad(angle)) * speed,
-                y: particle.y + Math.sin(Phaser.Math.DegToRad(angle)) * speed,
-                alpha: 0,
-                scale: 0,
-                duration: Phaser.Math.Between(400, 800),
-                onComplete: () => {
-                    particle.setActive(false).setVisible(false);
-                },
-            });
-        });
     }
 
     handleLavaCollision(ball) {
@@ -580,18 +439,6 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 
-    // ==============================================
-    // Game Flow Control
-    // ==============================================
-
-    togglePause() {
-        this.isPaused = !this.isPaused;
-        this.isPaused ? this.physics.pause() : this.physics.resume();
-        this.isPaused
-            ? this.gameUI.pauseDisplay.show()
-            : this.gameUI.pauseDisplay.hide();
-    }
-
     resetAfterLava() {
         if (!this.balls.length) {
             this.ball = this.createBall();
@@ -601,41 +448,38 @@ export default class GameScene extends Phaser.Scene {
         this.stickBallToPaddle();
     }
 
-    resetLevel() {
-        this.bricks.clear(true, true);
-        this.createBricks();
-        this.stickBallToPaddle();
+    // ==============================================
+    // Game Flow Control
+    // ==============================================
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
+        this.physics[this.isPaused ? "pause" : "resume"]();
+        this.gameUI.pauseDisplay[this.isPaused ? "show" : "hide"]();
     }
 
     async gameOver(isWin = false) {
         this.physics.pause();
-        this.input.keyboard.enabled = false;
 
         this.cleanupGameObjects();
-
-        if (isWin) {
-            this.sounds.win.play();
-        } else {
-            this.sounds.lose.play();
-        }
+        this.audioManager.play(isWin ? 'win' : 'lose');
 
         await this.gameOverUI.show(
+            isWin,
             window.userId,
             this.gameUI.scoreDisplay.score,
             this.gameUI.livesDisplay.lives
         );
 
-        this.input.keyboard.enabled = true;
         this.scene.restart();
     }
 
-    cleanupGameObjects() { 
+    cleanupGameObjects() {
         this.balls.forEach((ball) => ball.destroy());
         this.balls = [];
 
         [this.paddle, this.bricks].forEach((obj) => obj?.setVisible(false));
 
-        this.gameUI.livesDisplay.setVisible(false);
-        this.gameUI.scoreDisplay.setVisible(false);
+        this.gameUI.setVisible(false);
     }
 }
