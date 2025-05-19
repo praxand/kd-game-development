@@ -59,9 +59,11 @@ export default class CollisionManager {
 
     /**
      * Handelt botsingen tussen bal en peddel
-     * @todo Implementeer speciale effecten bij peddelbotsingen
      */
-    handleBallCollision() {}
+    handleBallCollision() {
+        // Speel het geluidseffect af
+        this.scene.audioManager.play("break");
+    }
 
     /**
      * Handelt botsingen tussen bal en blokken
@@ -69,6 +71,9 @@ export default class CollisionManager {
      * @param {Phaser.GameObjects.Rectangle} brick - Het blok object
      */
     handleBrickCollision(ball, brick) {
+        // Speel het geluidseffect af
+        this.scene.audioManager.play("break");
+
         // Vernietig het blok
         brick.destroy();
 

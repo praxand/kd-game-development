@@ -15,6 +15,9 @@ const fileConstants = {
 
             // Verlies geluidseffect
             lose: "270334__littlerobotsoundfactory__jingle_lose_01.wav",
+
+            // Blok gebroken geluidseffect
+            break: "290522__littlerobotsoundfactory__mouth_43.wav",
         },
     },
 };
