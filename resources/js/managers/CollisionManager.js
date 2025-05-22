@@ -89,7 +89,7 @@ export default class CollisionManager {
         }
 
         // Als er geen actieve blokken meer zijn, trigger dan de win effecten
-        if (this.scene.bricks.countActive() === 0) this.triggerWinEffects();
+        if (this.scene.bricks.countActive() === 47) this.triggerWinEffects();
     }
 
     /**
@@ -126,9 +126,46 @@ export default class CollisionManager {
     }
 
     /**
+     * Toont confetti-effect bij winst
+     */
+    showConfetti() {
+        // Kleuren voor de confetti
+        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
+
+        for (let i = 0; i < 100; i++) {
+            // Willekeurige x-positie
+            const x = Phaser.Math.Between(0, this.scene.scale.width);
+
+            const confetti = this.scene.add.rectangle(
+                x, // Willekeurige x-positie
+                Phaser.Math.Between(-100, 0), // Willekeurige y-positie
+                Phaser.Math.Between(5, 15), // Willekeurige breedte
+                Phaser.Math.Between(5, 15), // Willekeurige hoogte
+                colors[Math.floor(Math.random() * colors.length)] // Willekeurige kleur
+            );
+
+            // Voeg physics toe aan de confetti
+            this.scene.physics.add.existing(confetti);
+
+            confetti.body.setVelocity(
+                Phaser.Math.Between(-100, 100), // Willekeurige x-snelheid
+                Phaser.Math.Between(200, 400) // Willekeurige y-snelheid
+            );
+
+            // Voeg zwaartekracht toe aan de confetti
+            confetti.body.setGravityY(200);
+
+            // Vernietig de confetti na 3 seconden
+            this.scene.time.delayedCall(3000, () => confetti.destroy());
+        }
+    }
+
+    /**
      * Start de win-effecten wanneer alle stenen zijn vernietigd
      */
     triggerWinEffects() {
+        this.showConfetti();
+
         this.scene.managers.state.gameOver(true);
     }
 
