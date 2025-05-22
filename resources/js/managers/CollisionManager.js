@@ -65,12 +65,52 @@ export default class CollisionManager {
         this.scene.audioManager.play("break");
     }
 
+    createBlockExplosion(x, y) {
+        // Array om de particles op te slaan
+        const particles = [];
+
+        // Kleuren voor de particles
+        const colors = [0xffffff, 0xeeeeee, 0xdddddd, 0xcccccc];
+
+        for (let i = 0; i < Phaser.Math.Between(6, 8); i++) {
+            // Willekeurige grootte van de particles
+            const size = Phaser.Math.Between(2, 5);
+
+            const particle = this.scene.add.circle(
+                x, // Willekeurige x-positie
+                y, // Willekeurige y-positie
+                size, // Willekeurige grootte
+                colors[Math.floor(Math.random() * colors.length)] // Willekeurige kleur
+            );
+
+            // Voeg physics toe aan de particles
+            this.scene.physics.add.existing(particle);
+
+            particle.body.setVelocity(
+                Phaser.Math.Between(-100, 100), // Willekeurige x-snelheid
+                Phaser.Math.Between(-150, -50) // Willekeurige y-snelheid
+            );
+
+            this.scene.tweens.add({
+                targets: particle, // particles
+                alpha: 0, // Verander de alpha naar 0
+                duration: 400, // Duur van de animatie
+                onComplete: () => particle.destroy(), // Vernietig de particles na de animatie
+            });
+
+            particles.push(particle); // Voeg de particles toe aan de array
+        }
+    }
+
     /**
      * Handelt botsingen tussen bal en blokken
      * @param {Phaser.GameObjects.Arc} ball - Het bal object
      * @param {Phaser.GameObjects.Rectangle} brick - Het blok object
      */
     handleBrickCollision(ball, brick) {
+        // Speel explosie af
+        this.createBlockExplosion(brick.x, brick.y);
+
         // Speel het geluidseffect af
         this.scene.audioManager.play("break");
 
@@ -89,7 +129,7 @@ export default class CollisionManager {
         }
 
         // Als er geen actieve blokken meer zijn, trigger dan de win effecten
-        if (this.scene.bricks.countActive() === 47) this.triggerWinEffects();
+        if (this.scene.bricks.countActive() === 0) this.triggerWinEffects();
     }
 
     /**
@@ -164,8 +204,10 @@ export default class CollisionManager {
      * Start de win-effecten wanneer alle stenen zijn vernietigd
      */
     triggerWinEffects() {
+        // Toon confetti-effect
         this.showConfetti();
 
+        // Stop het spel
         this.scene.managers.state.gameOver(true);
     }
 
