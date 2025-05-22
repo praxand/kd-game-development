@@ -113,8 +113,8 @@ export default class GameStateManager {
      * @returns {Promise<void>}
      */
     async gameOver(isWin = false) {
-        // Pauzeer de physics engine
-        this.scene.physics.pause();
+        // Zet alle keyboard invoer uit
+        this.scene.input.keyboard.enabled = false
 
         // Ruim de game objecten op
         this.cleanupGameObjects();
@@ -129,6 +129,9 @@ export default class GameStateManager {
             this.scene.gameUI.scoreDisplay.score, // De score van de speler
             this.scene.gameUI.livesDisplay.lives // Het aantal levens van de speler
         );
+
+        // Zet alle keyboard invoer aan
+        this.scene.input.keyboard.enabled = true
 
         // Reset de spelstatus
         this.scene.scene.restart();
