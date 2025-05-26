@@ -12,25 +12,33 @@
                 </thead>
 
                 <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
-                    @foreach ($data as $score)
+                    @if ($data->isNotEmpty())
+                        @foreach ($data as $score)
+                            <tr>
+                                <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
+                                    {{ $loop->iteration }}
+                                </td>
+
+                                <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
+                                    {{ $score->user->name }}
+                                </td>
+
+                                <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
+                                    {{ $score->score }}
+                                </td>
+
+                                <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
+                                    {{ $score->lives }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
                         <tr>
-                            <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
-                                {{ $loop->iteration }}
-                            </td>
-
-                            <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
-                                {{ $score->user->name }}
-                            </td>
-
-                            <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
-                                {{ $score->score }}
-                            </td>
-
-                            <td class="whitespace-nowrap p-3 text-sm text-zinc-500 dark:text-white/80">
-                                {{ $score->lives }}
+                            <td colspan="4" class="p-3 text-center text-sm text-zinc-500 dark:text-white/80">
+                                No scores available
                             </td>
                         </tr>
-                    @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>
