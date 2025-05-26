@@ -193,7 +193,7 @@ export default class CollisionManager {
             );
 
             // Voeg zwaartekracht toe aan de confetti
-            confetti.body.setGravityY(200);
+            confetti.body.setGravityY(100);
 
             // Vernietig de confetti na 3 seconden
             this.scene.time.delayedCall(3000, () => confetti.destroy());
